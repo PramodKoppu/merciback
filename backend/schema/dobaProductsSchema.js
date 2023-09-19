@@ -2,11 +2,7 @@
 
 const mongoose = require('mongoose');
 
-const dobaProductsSchema = new mongoose.Schema({
-    merci_id: {
-        type: String,
-        default: '',
-    },
+const dobaproductsbackupSchema = new mongoose.Schema({
     merci_main_cat: {
         type: String,
         required: true
@@ -43,59 +39,19 @@ const dobaProductsSchema = new mongoose.Schema({
         type: String,
        default: ''
     },
-    merci_sku_code: {
-        type: String,
-        required: true
-    },
     merci_mrp: {
         type: String,
         required: true
     },
-    merci_map: {
+    merci_srp: {
         type: String,
         default: ''
     },
-    merci_dropship: {
-        type: String,
-        default: ''
-    },
-    merci_inventory: {
-        type: String,
-        default: ''
-    },
-    merci_location: {
-        type: String,
-        default: ''
-    },
-    merci_ship_cost: {
-        type: String,
-        default: ''
-    },
-    merci_prod_img1: {
-        type: String,
-        default:''
-    },
-    merci_prod_img2: {
-        type: String,
-        default:''
-    },
-    merci_prod_img3: {
-        type: String,
-        default:''
-    },
-    merci_prod_img4: {
-        type: String,
-        default:''
-    },
-    merci_prod_img5: {
+    merci_prod_img: {
         type: String,
         default:''
     },
     merci_des: {
-        type: String,
-        default:''
-    },
-    merci_html_des: {
         type: String,
         default:''
     },
@@ -112,14 +68,13 @@ const dobaProductsSchema = new mongoose.Schema({
         default: false
     }
 });
-
-dobaProductsSchema.virtual('id').get(function () {
+dobaproductsbackupSchema.virtual('id').get(function () {
     return this._id.toHexString();
 });
 
-dobaProductsSchema.set('toJSON', {
+dobaproductsbackupSchema.set('toJSON', {
     virtuals: true,
 });
 
-exports.dobaproducts = mongoose.model('dobaproducts', dobaProductsSchema);
-exports.dobaProductsSchema = dobaProductsSchema;
+exports.dobaproducts = mongoose.model('dobaproducts', dobaproductsbackupSchema);
+exports.dobaproductsbackupSchema = dobaproductsbackupSchema;

@@ -25,8 +25,6 @@ const createUser = async (req, res) => {
     const userExist = await User.find({merci_phone: req.body.phone});
     const pancardExist = await User.find({merci_pancard: req.body.pancard});
 
-    console.log('User', userExist);
-
     if(userExist.length !== 0){
         return res.status(200).json({status: 400, message: 'Phone Number Already Exsists. Please register with another number'});
     }

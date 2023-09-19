@@ -9,7 +9,12 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 const app = express();
-app.use(cors());
+// var cors = require('cors');
+// var corsOptions = {
+//     origin: '*',
+//     optionsSuccessStatus: 200,
+// }
+app.use(cors({origin: true}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
@@ -17,6 +22,8 @@ app.use(express.urlencoded({ extended: true}));
 app.use('/api/user', require('./Routes/UserRoutes'));
 
 app.use('/api/doba', require('./Routes/DobaRoutes'));
+
+app.use('/api/blood', require('./Routes/BloodContactsRoutes'));
 
 
 app.listen(PORT, () => console.log(`Server is Running on ${PORT}`))
