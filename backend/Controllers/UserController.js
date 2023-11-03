@@ -17,7 +17,7 @@ const getUser = async (req, res) => {
         res.status(500).json({message: 'The user with the given ID was not found.'})
     } 
     res.status(200).send(user);
-}
+}  
 
 
 const createUser = async (req, res) => {
@@ -78,13 +78,13 @@ const deleteUser = (req, res) => {
 const userlogin = async (req,res) => {
     const user = await User.findOne({merci_phone: req.body.phone})
     if(!user) {
-        return res.json({ status: 400,  message: 'The user not found'});
+        return res.json({ status: 400,  message: 'Phone Number is Not Registered.'});
     }
     if(user && bcrypt.compareSync(req.body.password, user.merci_password)) {
        
         res.send({status: 200, user: user._id}) 
     } else {
-       res.json({status: 401, message:'password is wrong!'});
+       res.json({status: 401, message:'Entered Password is Wrong'});
     }
 }
 
