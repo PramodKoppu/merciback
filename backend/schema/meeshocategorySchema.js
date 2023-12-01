@@ -2,8 +2,8 @@
 
 const mongoose = require('mongoose');
 
-const categorylistsSchema = new mongoose.Schema({
-    merci_company: {
+const meeshocategorySchema = new mongoose.Schema({
+    company: {
         type: String,
         required: true
     },
@@ -21,13 +21,13 @@ const categorylistsSchema = new mongoose.Schema({
     }
 });
 
-categorylistsSchema.virtual('id').get(function () {
+meeshocategorySchema.virtual('id').get(function () {
     return this._id.toHexString();
 });
 
-categorylistsSchema.set('toJSON', {
+meeshocategorySchema.set('toJSON', {
     virtuals: true,
 });
 
-exports.categorylists = mongoose.model('categorylists', categorylistsSchema);
-exports.categorylistsSchema = categorylistsSchema;
+exports.meeshocategory = mongoose.model('meeshocategory', meeshocategorySchema, 'meeshocategory');
+exports.meeshocategorySchema = meeshocategorySchema;
