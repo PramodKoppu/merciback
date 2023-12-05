@@ -202,29 +202,29 @@ const updateMeeshoPrice = async (req, res) => {
 }
 
 
-// const updatehHotProduct = async (req, res) => {
+const updatehHotProduct = async (req, res) => {
 
  
-//      if(await meeshoproducts.updateMany({
-//       merci_spu_id: req.body.sku
-//     }, { $set : {merci_ishot: req.body.status}})){
-//       return res.status(200).json({ status: 200, message: 'Updated Hot ' });
-//     }else{
-//       return res.status(200).json({ status: 400, message: 'Not Updated Hot' });
-//     }
-// }
+     if(await meeshoproducts.updateMany({
+      merci_spu_id: req.body.sku
+    }, { $set : {merci_ishot: req.body.status}})){
+      return res.status(200).json({ status: 200, message: 'Updated Hot ' });
+    }else{
+      return res.status(200).json({ status: 400, message: 'Not Updated Hot' });
+    }
+}
 
-// const updatehValueProduct = async (req, res) => {
+const updatehValueProduct = async (req, res) => {
 
  
-//   if(await meeshoproducts.updateMany({
-//    merci_spu_id: req.body.sku
-//  }, { $set : {merci_isValuable: req.body.status}})){
-//    return res.status(200).json({ status: 200, message: 'Updated Valuable ' });
-//  }else{
-//    return res.status(200).json({ status: 400, message: 'Not Updated Valuable' });
-//  }
-// }
+  if(await meeshoproducts.updateMany({
+   merci_spu_id: req.body.sku
+ }, { $set : {merci_isValuable: req.body.status}})){
+   return res.status(200).json({ status: 200, message: 'Updated Valuable ' });
+ }else{
+   return res.status(200).json({ status: 400, message: 'Not Updated Valuable' });
+ }
+}
 
 
 
@@ -235,6 +235,6 @@ module.exports = { getAllCategories,
   getProductBySKU, 
   // getCategory,
   updateMeeshoPrice,
-  // updatehHotProduct,  
-  // updatehValueProduct  
+  updatehHotProduct,  
+  updatehValueProduct  
 };
