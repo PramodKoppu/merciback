@@ -23,6 +23,8 @@ app.use('/api/user', require('./Routes/UserRoutes'));
 
 app.use('/api/doba', require('./Routes/DobaRoutes'));
 
+app.use('/api/cj', require('./Routes/CJRoutes'));
+
 app.use('/api/meesho', require('./Routes/MeeshooRoutes'));
 
 app.use('/api/blood', require('./Routes/BloodContactsRoutes'));
