@@ -228,6 +228,18 @@ const updatehValueProduct = async (req, res) => {
 }
 
 
+const deleteProduct = async (req, res) => {
+
+  if(await cjproducts.deleteOne({
+   merci_spu_id: req.body.sku
+ })){
+   return res.status(200).json({ status: 200, message: 'Product Deleted ' });
+ }else{
+   return res.status(200).json({ status: 400, message: 'Not Able to Delete Product' });
+ }
+}
+
+
 
 module.exports = { getAllCategories, 
   addProducts,
@@ -237,5 +249,6 @@ module.exports = { getAllCategories,
   // getCategory,
   updateCJPrice,
   updatehHotProduct,  
-  updatehValueProduct  
+  updatehValueProduct,
+  deleteProduct  
 };

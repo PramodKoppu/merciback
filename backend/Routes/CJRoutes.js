@@ -8,6 +8,7 @@ const { getAllCategories,
  updateCJPrice,
  updatehHotProduct,
  updatehValueProduct, 
+ deleteProduct,
 } = require('../Controllers/CJController');
 
 const Router = express.Router();
@@ -21,6 +22,7 @@ Router.route('/dobaproducts/:id').post(getProduct);
 Router.route('/updatePrice').post(updateCJPrice);
 Router.route('/updateHot').post(updatehHotProduct);
 Router.route('/updateValuable').post(updatehValueProduct);
+Router.route('/deleteProduct').post(deleteProduct);
 
 
 module.exports = Router

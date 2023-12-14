@@ -6,7 +6,8 @@ const { getAllCategories,
  getCategory,
  updateDobaPrice,
  updatehHotProduct,
- updatehValueProduct, } = require('../Controllers/DobaController');
+ updatehValueProduct, 
+deleteProduct} = require('../Controllers/DobaController');
 
 const Router = express.Router();
 
@@ -18,6 +19,6 @@ Router.route('/category').post(getCategory);
 Router.route('/updatePrice').post(updateDobaPrice);
 Router.route('/updateHot').post(updatehHotProduct);
 Router.route('/updateValuable').post(updatehValueProduct);
-
+Router.route('/deleteProduct').post(deleteProduct);
 
 module.exports = Router

@@ -7,6 +7,8 @@ const {
   getProductBySKU,
   updatehHotProduct,
   updatehValueProduct,
+  deleteProduct,
+  
 } = require("../Controllers/MeeshoController");
 
 const Router = express.Router();
@@ -20,6 +22,7 @@ Router.route('/meeshoproduct').post(getProductBySKU);
 Router.route('/updatePrice').post(updateMeeshoPrice);
 Router.route('/updateHot').post(updatehHotProduct);
 Router.route('/updateValuable').post(updatehValueProduct);
+Router.route('/deleteProduct').post(deleteProduct);
 
 
 module.exports = Router
