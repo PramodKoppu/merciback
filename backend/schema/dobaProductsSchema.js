@@ -63,6 +63,10 @@ const dobaproductsbackupSchema = new mongoose.Schema({
         type: Number,
         default: 10
     },
+    merci_us_discount: {
+        type: Number,
+        default: 20
+    },
     merci_isValuable: {
         type: Boolean,
         default: false

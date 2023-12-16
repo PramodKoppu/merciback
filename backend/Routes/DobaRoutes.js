@@ -5,6 +5,7 @@ const { getAllCategories,
     getProductBySKU,
  getCategory,
  updateDobaPrice,
+ updateUSDobaPrice,
  updatehHotProduct,
  updatehValueProduct, 
 deleteProduct} = require('../Controllers/DobaController');
@@ -17,6 +18,7 @@ Router.route('/dobaproduct').post(getProductBySKU);
 Router.route('/dobaproducts/:id').post(getProduct);
 Router.route('/category').post(getCategory);
 Router.route('/updatePrice').post(updateDobaPrice);
+Router.route('/updateUSPrice').post(updateUSDobaPrice);
 Router.route('/updateHot').post(updatehHotProduct);
 Router.route('/updateValuable').post(updatehValueProduct);
 Router.route('/deleteProduct').post(deleteProduct);

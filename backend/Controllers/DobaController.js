@@ -176,6 +176,49 @@ const updateDobaPrice = async (req, res) => {
 
 }
 
+const updateUSDobaPrice = async (req, res) => {
+
+  if (
+    req.body.main_cat !== "" &&
+    req.body.sub_cat === "" &&
+    req.body.low_cat === ""
+  ) {
+     if(await dobaproducts.updateMany({
+      merci_main_cat: req.body.main_cat
+    }, { $set : {merci_us_discount: req.body.price}})){
+      return res.status(200).json({ status: 200, message: 'Updated Price' });
+    }else{
+      return res.status(200).json({ status: 400, message: 'Not Updated Price' });
+    }
+  } else if (
+    req.body.main_cat !== "" &&
+    req.body.sub_cat !== "" &&
+    req.body.low_cat === ""
+  ) {
+    if(await dobaproducts.updateMany({
+      merci_main_cat: req.body.main_cat,
+      merci_sub_cat: req.body.sub_cat,
+    }, { $set : {merci_us_discount: req.body.price}})){
+      return res.status(200).json({ status: 200, message: 'Updated Price' });
+    }else{
+      return res.status(200).json({ status: 400, message: 'Not Updated Price' });
+    }
+  } else if(req.body.main_cat !== "" &&
+  req.body.sub_cat !== "" &&
+  req.body.low_cat !== "") {
+    if(await dobaproducts.updateMany({
+      merci_main_cat: req.body.main_cat,
+      merci_sub_cat: req.body.sub_cat,
+      merci_low_cat: req.body.low_cat
+    }, { $set : {merci_us_discount: req.body.price}})){
+      return res.status(200).json({ status: 200, message: 'Updated Price' });
+    }else{
+      return res.status(200).json({ status: 400, message: 'Not Updated Price' });
+    }
+  }
+
+}
+
 
 const updatehHotProduct = async (req, res) => {
 
@@ -220,6 +263,7 @@ module.exports = { getAllCategories,
   getProductBySKU, 
   getCategory,
   updateDobaPrice,
+  updateUSDobaPrice,
   updatehHotProduct,  
   updatehValueProduct,
 deleteProduct  };
