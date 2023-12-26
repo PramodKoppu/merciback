@@ -202,6 +202,28 @@ const updateCJPrice = async (req, res) => {
 
 }
 
+const updateSingleCJPrice = async (req, res) => {
+
+  if(req.body.country === 'in') {
+     if(await cjproducts.updateOne({
+      merci_spu_id: req.body.sku
+    }, { $set : {merci_merci_discount: req.body.price}})){
+      return res.status(200).json({ status: 200, message: 'Updated Price' });
+    }else{
+      return res.status(200).json({ status: 400, message: 'Not Updated Price' });
+    }
+  } else {
+    if(await cjproducts.updateOne({
+      merci_spu_id: req.body.sku
+    }, { $set : {merci_us_discount: req.body.price}})){
+      return res.status(200).json({ status: 200, message: 'Updated Price' });
+    }else{
+      return res.status(200).json({ status: 400, message: 'Not Updated Price' });
+    }
+  }
+  
+}
+
 const updateUSCJPrice = async (req, res) => {
 
   if (
@@ -294,5 +316,6 @@ module.exports = { getAllCategories,
   updateUSCJPrice,
   updatehHotProduct,  
   updatehValueProduct,
-  deleteProduct  
+  deleteProduct,
+  updateSingleCJPrice, 
 };

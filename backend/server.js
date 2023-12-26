@@ -27,6 +27,8 @@ app.use('/api/cj', require('./Routes/CJRoutes'));
 
 app.use('/api/meesho', require('./Routes/MeeshooRoutes'));
 
+app.use('/api/baap', require('./Routes/BaapRoutes'));
+
 app.use('/api/blood', require('./Routes/BloodContactsRoutes'));
 
 

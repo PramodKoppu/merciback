@@ -10,6 +10,7 @@ const { getAllCategories,
  updatehHotProduct,
  updatehValueProduct, 
  deleteProduct,
+ updateSingleCJPrice,
 } = require('../Controllers/CJController');
 
 const Router = express.Router();
@@ -25,6 +26,8 @@ Router.route('/updateUSPrice').post(updateUSCJPrice);
 Router.route('/updateHot').post(updatehHotProduct);
 Router.route('/updateValuable').post(updatehValueProduct);
 Router.route('/deleteProduct').post(deleteProduct);
+Router.route('/updateSingle').post(updateSingleCJPrice);
+
 
 
 module.exports = Router
