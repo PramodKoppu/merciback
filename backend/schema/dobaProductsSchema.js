@@ -19,15 +19,7 @@ const dobaproductsbackupSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    merci_item_no: {
-        type: String,
-        required: true
-    },
     merci_url: {
-        type: String,
-        required: true
-    },
-    merci_cat: {
         type: String,
         required: true
     },
@@ -48,8 +40,8 @@ const dobaproductsbackupSchema = new mongoose.Schema({
         default: ''
     },
     merci_prod_img: {
-        type: String,
-        default:''
+        type: Array,
+        default:[]
     },
     merci_des: {
         type: String,
@@ -80,5 +72,5 @@ dobaproductsbackupSchema.set('toJSON', {
     virtuals: true,
 });
 
-exports.dobaproducts = mongoose.model('dobaproducts', dobaproductsbackupSchema);
+exports.dobaproducts = mongoose.model('dobaproducts', dobaproductsbackupSchema,'dobaproductsnew');
 exports.dobaproductsbackupSchema = dobaproductsbackupSchema;

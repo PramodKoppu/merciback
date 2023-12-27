@@ -278,6 +278,19 @@ const deleteProduct = async (req, res) => {
 }
 
 
+const addProducts = async (req, res) => {
+
+
+  const productsInstances = req.body.productsList.map((product) => new dobaproducts(product));
+  dobaproducts.insertMany(productsInstances)
+    .then((result) => {
+      return res.status(200).json({ status: 200,  message: `${result.length} products saved to the database.`});
+    })
+    .catch((error) => {
+      return res.status(200).json({ status: 200,  message: `Error saving products to the database: ${error}`});
+    });
+}
+
 
 module.exports = { getAllCategories, 
   getProducts, 
@@ -289,4 +302,5 @@ module.exports = { getAllCategories,
   updatehHotProduct,  
   updatehValueProduct,
 deleteProduct,
-updateSingleDobaPrice  };
+updateSingleDobaPrice,
+addProducts  };

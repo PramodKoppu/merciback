@@ -9,12 +9,14 @@ const { getAllCategories,
  updatehHotProduct,
  updatehValueProduct, 
 deleteProduct,
-updateSingleDobaPrice} = require('../Controllers/DobaController');
+updateSingleDobaPrice,
+addProducts} = require('../Controllers/DobaController');
 
 const Router = express.Router();
 
 Router.route('/categories').get(getAllCategories);
 Router.route('/dobaproducts').post(getProducts);
+Router.route('/addProducts').post(addProducts);
 Router.route('/dobaproduct').post(getProductBySKU);
 Router.route('/dobaproducts/:id').post(getProduct);
 Router.route('/category').post(getCategory);
