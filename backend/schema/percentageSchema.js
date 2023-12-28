@@ -41,5 +41,5 @@ percentageSchema.set('toJSON', {
     virtuals: true,
 });
 
-exports.percentageValues = mongoose.model('percentageValues', percentageSchema, merciPercentages);
+exports.percentageValues = mongoose.model('percentageValues', percentageSchema, 'merciPercentages');
 exports.percentageSchema = percentageSchema;

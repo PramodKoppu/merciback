@@ -29,6 +29,8 @@ app.use('/api/meesho', require('./Routes/MeeshooRoutes'));
 
 app.use('/api/baap', require('./Routes/BaapRoutes'));
 
+app.use('/api/percentage', require('./Routes/PercentageRoutes'));
+
 app.use('/api/blood', require('./Routes/BloodContactsRoutes'));
 
 
