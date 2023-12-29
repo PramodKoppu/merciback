@@ -62,50 +62,125 @@ const addProducts = async (req, res) => {
 }
 
 
-const getProducts = async (req, res) => {
-  let products;
+// const getProducts = async (req, res) => {
+//   let products;
 
-  if (
-    req.body.main_cat !== "" &&
-    req.body.sub_cat === "" &&
-    req.body.low_cat === ""
-  ) {
-    products = await cjproducts.find({ main_main_cat: req.body.main_cat });
-    if (products) {
-      return res.status(200).json({ status: 200, productslist: products });
+//   if (
+//     req.body.main_cat !== "" &&
+//     req.body.sub_cat === "" &&
+//     req.body.low_cat === ""
+//   ) {
+//     products = await cjproducts.find({ main_main_cat: req.body.main_cat });
+//     if (products) {
+//       return res.status(200).json({ status: 200, productslist: products });
+//     }
+//   } else if (
+//     req.body.main_cat !== "" &&
+//     req.body.sub_cat !== "" &&
+//     req.body.low_cat === ""
+//   ) {
+//     products = await cjproducts.find({
+//       merci_main_cat: req.body.main_cat,
+//       merci_sub_cat: req.body.sub_cat,
+//     });
+//     if (products) {
+//       return res.status(200).json({ status: 200, productslist: products });
+//     }
+//   } else if (
+//     req.body.main_cat !== "" &&
+//     req.body.sub_cat !== "" &&
+//     req.body.low_cat !== ""
+//   ) {
+//     products = await cjproducts.find({
+//       merci_main_cat: req.body.main_cat,
+//       merci_sub_cat: req.body.sub_cat,
+//       merci_low_cat: req.body.low_cat,
+//     });
+//     if (products) {
+//       return res.status(200).json({ status: 200, productslist: products });
+//     }
+//   } else {
+//     products = await cjproducts.find();
+//     if (products) {
+//       return res.status(200).json({ status: 200, productslist: products });
+//     }
+//   }
+// };
+
+const getProducts = async (req, res) => {
+  const page = parseInt(req.query.page) || 1; 
+  const pageSize = parseInt(req.query.pageSize) || 20; 
+
+  let products;
+  let skip = (page - 1) * pageSize;
+  let totalPages;
+  let totalProducts;
+  
+  try {
+    if (
+      req.body.main_cat !== "" &&
+      req.body.sub_cat === "" &&
+      req.body.low_cat === ""
+    ) {
+      products = await cjproducts
+        .find({ main_main_cat: req.body.main_cat })
+        .skip(skip)
+        .limit(pageSize);
+       totalProducts = await cjproducts.countDocuments({ main_main_cat: req.body.main_cat });
+       totalPages = Math.ceil(totalProducts / pageSize);
+    } else if (
+      req.body.main_cat !== "" &&
+      req.body.sub_cat !== "" &&
+      req.body.low_cat === ""
+    ) {
+      products = await cjproducts
+        .find({
+          merci_main_cat: req.body.main_cat,
+          merci_sub_cat: req.body.sub_cat,
+        })
+        .skip(skip)
+        .limit(pageSize);
+
+        totalProducts = await cjproducts.countDocuments({
+          merci_main_cat: req.body.main_cat,
+          merci_sub_cat: req.body.sub_cat,
+        });
+       totalPages = Math.ceil(totalProducts / pageSize);
+    } else if (
+      req.body.main_cat !== "" &&
+      req.body.sub_cat !== "" &&
+      req.body.low_cat !== ""
+    ) {
+      products = await cjproducts
+        .find({
+          merci_main_cat: req.body.main_cat,
+          merci_sub_cat: req.body.sub_cat,
+          merci_low_cat: req.body.low_cat,
+        })
+        .skip(skip)
+        .limit(pageSize);
+        totalProducts = await cjproducts.countDocuments({
+          merci_main_cat: req.body.main_cat,
+          merci_sub_cat: req.body.sub_cat,
+          merci_low_cat: req.body.low_cat
+        });
+       totalPages = Math.ceil(totalProducts / pageSize);
+    } else {
+      products = await cjproducts.find().skip(skip).limit(pageSize);
     }
-  } else if (
-    req.body.main_cat !== "" &&
-    req.body.sub_cat !== "" &&
-    req.body.low_cat === ""
-  ) {
-    products = await cjproducts.find({
-      merci_main_cat: req.body.main_cat,
-      merci_sub_cat: req.body.sub_cat,
-    });
-    if (products) {
-      return res.status(200).json({ status: 200, productslist: products });
+
+    if (products.length > 0) {
+      return res.status(200).json({ status: 200, productslist: products, totalPages: totalPages, totalProducts: totalProducts });
+    } else {
+      return res.status(404).json({ status: 404, message: "No products found." });
     }
-  } else if (
-    req.body.main_cat !== "" &&
-    req.body.sub_cat !== "" &&
-    req.body.low_cat !== ""
-  ) {
-    products = await cjproducts.find({
-      merci_main_cat: req.body.main_cat,
-      merci_sub_cat: req.body.sub_cat,
-      merci_low_cat: req.body.low_cat,
-    });
-    if (products) {
-      return res.status(200).json({ status: 200, productslist: products });
-    }
-  } else {
-    products = await cjproducts.find();
-    if (products) {
-      return res.status(200).json({ status: 200, productslist: products });
-    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: 500, message: "Internal Server Error." });
   }
 };
+
+
 
 const getProduct = async (req, res) => {
   const product = await cjproducts.findById(req.params.id);
