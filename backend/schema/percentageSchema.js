@@ -30,6 +30,15 @@ const percentageSchema = new mongoose.Schema({
     },
     highMax: {
         type: Number,
+    },
+    sublowMin:{
+        type: Number,
+    },
+    sublowMax:{
+        type: Number,
+    },
+    sublowPercent:{
+        type: Number
     }
 });
 
