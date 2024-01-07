@@ -123,10 +123,10 @@ const getProducts = async (req, res) => {
       req.body.low_cat === ""
     ) {
       products = await cjproducts
-        .find({ main_main_cat: req.body.main_cat })
+        .find({ merci_main_cat: req.body.main_cat })
         .skip(skip)
         .limit(pageSize);
-       totalProducts = await cjproducts.countDocuments({ main_main_cat: req.body.main_cat });
+       totalProducts = await cjproducts.countDocuments({ merci_main_cat: req.body.main_cat });
        totalPages = Math.ceil(totalProducts / pageSize);
     } else if (
       req.body.main_cat !== "" &&
@@ -170,7 +170,7 @@ const getProducts = async (req, res) => {
     }
 
     if (products.length > 0) {
-      return res.status(200).json({ status: 200, productslist: products, totalPages: totalPages, totalProducts: totalProducts });
+      return res.status(200).json({ status: 200, company: 'cj', productslist: products, totalPages: totalPages, totalProducts: totalProducts });
     } else {
       return res.status(200).json({ status: 404, message: "No products found." });
     }
