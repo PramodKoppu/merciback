@@ -49,63 +49,8 @@ const addProducts = async (req, res) => {
       return res.status(200).json({ status: 200,  message: `Error saving products to the database: ${error}`});
     });
 
-
-  // let user = new User({
-   
-  // })
-  // user = await user.save();
-
-  // if(!user)
-  // return res.status(200).json({status: 400, message: 'the user cannot be created!'})
-
-  // res.status(200).json({status: 200, message: 'user created'});
 }
 
-
-// const getProducts = async (req, res) => {
-//   let products;
-
-//   if (
-//     req.body.main_cat !== "" &&
-//     req.body.sub_cat === "" &&
-//     req.body.low_cat === ""
-//   ) {
-//     products = await cjproducts.find({ main_main_cat: req.body.main_cat });
-//     if (products) {
-//       return res.status(200).json({ status: 200, productslist: products });
-//     }
-//   } else if (
-//     req.body.main_cat !== "" &&
-//     req.body.sub_cat !== "" &&
-//     req.body.low_cat === ""
-//   ) {
-//     products = await cjproducts.find({
-//       merci_main_cat: req.body.main_cat,
-//       merci_sub_cat: req.body.sub_cat,
-//     });
-//     if (products) {
-//       return res.status(200).json({ status: 200, productslist: products });
-//     }
-//   } else if (
-//     req.body.main_cat !== "" &&
-//     req.body.sub_cat !== "" &&
-//     req.body.low_cat !== ""
-//   ) {
-//     products = await cjproducts.find({
-//       merci_main_cat: req.body.main_cat,
-//       merci_sub_cat: req.body.sub_cat,
-//       merci_low_cat: req.body.low_cat,
-//     });
-//     if (products) {
-//       return res.status(200).json({ status: 200, productslist: products });
-//     }
-//   } else {
-//     products = await cjproducts.find();
-//     if (products) {
-//       return res.status(200).json({ status: 200, productslist: products });
-//     }
-//   }
-// };
 
 const getProducts = async (req, res) => {
   const page = parseInt(req.query.page) || 1; 
