@@ -1,4 +1,5 @@
 const { User } = require('../schema/userSchema');
+const { rooftopShop } = require('../schema/rooftopShopSchema');
 const bcrypt = require('bcryptjs');
 
 const getUsers = async (req, res) => {
@@ -13,6 +14,15 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
 
     const user = await User.findById(req.params.id).select('-merci_password');
+    if(!user) {
+        res.status(500).json({message: 'The user with the given ID was not found.'})
+    } 
+    res.status(200).send(user);
+}  
+
+const getShopUser = async (req, res) => {
+
+    const user = await rooftopShop.findById(req.params.id).select('-merci_password');
     if(!user) {
         res.status(500).json({message: 'The user with the given ID was not found.'})
     } 
@@ -88,6 +98,20 @@ const userlogin = async (req,res) => {
     }
 }
 
+const shoplogin = async (req,res) => {
+    // console.log(req.body.username);
+    const shop = await rooftopShop.findOne({merci_user_name: req.body.username})
+    console.log(shop);
+    if(!shop) {
+        return res.json({ status: 400,  message: 'Username is Not Registered.'});
+    }
+    if(shop && bcrypt.compareSync(req.body.password, shop.merci_password)) {
+        res.send({status: 200, user: shop._id}) 
+    } else {
+        res.json({status: 401, message:'Entered Password is Wrong'});
+    }
+}
+
 const userrefer = async (req,res) => {
     const user = await User.findOne({merci_refer_id: req.body.refer})
     if(!user) {
@@ -150,6 +174,8 @@ module.exports = {
     useraadhar,
     useridCheck,
     userphone,
-    usersList
+    usersList,
+    shoplogin,
+    getShopUser
 }
 

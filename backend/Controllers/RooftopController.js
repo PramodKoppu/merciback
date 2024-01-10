@@ -23,15 +23,11 @@ const getrooftopShop = async (req, res) => {
 const createrooftopShop = async (req, res) => {
 
     let data = req.body.shopDetails;
-
     data = {...data, merci_password: bcrypt.hashSync(data.merci_password, 10)}
-
     //let rooftopShopVal = new rooftopShop(data);
     rooftopRes = await rooftopShop.insertMany(data);
-
     if(!rooftopRes)
     return res.status(200).json({status: 400, message: 'Rooftop cannot be created!'})
-
     res.status(200).json({status: 200, message: 'Shop created'});
 }
 
