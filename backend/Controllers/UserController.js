@@ -162,6 +162,43 @@ const usersList = async (req,res) => {
     return res.status(200).json({ status: 200, usersList: users});
 }
 
+const userPasswordUpdate = async (req,res) => {
+
+    const user = await User.findById(req.body.id)
+
+    if(user && bcrypt.compareSync(req.body.currentPassword, user.merci_password)) {
+        const userUpdate = await User.updateOne({"_id": req.body.id}, {$set: {"merci_password": bcrypt.hashSync(req.body.password, 10)}})
+        if(userUpdate.modifiedCount > 0){
+            res.status(200).send({status: 200, message: 'Password has been changed'}) 
+        } else {
+            res.status(200).send({status: 400, message: 'Password cannot be updated. Please try again'})
+        }
+    } else {
+        res.status(200).send({status: 400, message: 'Current Password is wrong. Please try again'})
+    }
+}
+
+const shopPasswordUpdate = async (req,res) => {
+    // console.log(req.body.username);
+
+    const user = await rooftopShop.findById(req.body.id)
+
+    if(user && bcrypt.compareSync(req.body.currentPassword, user.merci_password)) {
+        const userUpdate = await rooftopShop.updateOne({"_id": req.body.id}, {$set: {"merci_password": bcrypt.hashSync(req.body.password, 10)}})
+        if(userUpdate.modifiedCount > 0){
+            res.status(200).send({status: 200, message: 'Password has been changed'}) 
+        } else {
+            res.status(200).send({status: 400, message: 'Password cannot be updated. Please try again'})
+        }
+    } else {
+        res.status(200).send({status: 400, message: 'Current Password is wrong.Please try again'})
+    }
+ 
+}
+
+
+
+
 module.exports = {
     getUsers,
     getUser,
@@ -176,6 +213,8 @@ module.exports = {
     userphone,
     usersList,
     shoplogin,
-    getShopUser
+    getShopUser,
+    userPasswordUpdate,
+    shopPasswordUpdate
 }
 

@@ -12,7 +12,9 @@ useridCheck,
 userphone,
 usersList,
 shoplogin, 
-getShopUser} = require('../Controllers/UserController');
+getShopUser,
+userPasswordUpdate,
+shopPasswordUpdate} = require('../Controllers/UserController');
 
 const Router = express.Router();
 
@@ -27,5 +29,7 @@ Router.route('/useridCheck').post(useridCheck);
 Router.route('/phone').post(userphone);
 Router.route('/referList').post(usersList);
 Router.route('/getshopuser/:id').get(getShopUser);
+Router.route('/updatePassword').post(userPasswordUpdate);
+Router.route('/updateShopPassword').post(shopPasswordUpdate);
 
 module.exports = Router
