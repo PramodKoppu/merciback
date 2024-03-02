@@ -25,6 +25,8 @@ app.use('/api/doba', require('./Routes/DobaRoutes'));
 
 app.use('/api/cj', require('./Routes/CJRoutes'));
 
+app.use('/api/deodap', require('./Routes/DeodapRoutes'));
+
 app.use('/api/rooftop', require('./Routes/RooftopRoutes'));
 
 app.use('/api/meesho', require('./Routes/MeeshooRoutes'));
