@@ -21,6 +21,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true}));
 
 app.use('/api/user', require('./Routes/UserRoutes'));
 
+app.use('/api/globalUser', require('./Routes/UserGlobalRoutes'));
+
 app.use('/api/doba', require('./Routes/DobaRoutes'));
 
 app.use('/api/cj', require('./Routes/CJRoutes'));

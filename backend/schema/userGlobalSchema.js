@@ -2,20 +2,8 @@
 
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-    merci_refer_id: {
-        type: String,
-        required: true
-    },
-    merci_first_name: {
-        type: String,
-        required: true,
-    },
-    merci_middle_name: {
-        type: String,
-        default: ''
-    },
-    merci_last_name: {
+const userGlobalSchema = new mongoose.Schema({
+    merci_full_name: {
         type: String,
         required: true,
     },
@@ -39,14 +27,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    merci_village :{
-        type: String,
-        default: ''
-    },
-    merci_mandal: {
-        type: String,
-        default: ''
-    },
     merci_district: {
         type: String,
         default: ''
@@ -67,40 +47,19 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    merci_qualification: {
-        type: String,
-        default: ''
-    },
-    merci_level: {
-        type: String,
-        default: ''
-    },
-    merci_pancard: {
-        type: String,
-        required: true
-    },
-    merci_aadhar: {
-        type: String,
-        default: ''
-    },
     merci_image: {
         type: String,
         default: ''
-    },
-    merci_refer: {
-        type: String,
-        required: true
-    },
-
+    }
 }, { timestamps: true });
 
-userSchema.virtual('id').get(function () {
+userGlobalSchema.virtual('id').get(function () {
     return this._id.toHexString();
 });
 
-userSchema.set('toJSON', {
+userGlobalSchema.set('toJSON', {
     virtuals: true,
 });
 
-exports.User = mongoose.model('User', userSchema);
-exports.userSchema = userSchema;
+exports.UserGlobal = mongoose.model('UserGlobal', userGlobalSchema, "globalUsers");
+exports.userGlobalSchema = userGlobalSchema;
