@@ -133,7 +133,7 @@ const getInitialProducts = async (req, res) => {
       const products = await cjproducts.find({ merci_main_cat: category }).limit(25);
       allpro.push(...products);
   }));
-  return  res.status(200).send({allPro : allpro })
+  return  res.status(200).json({status: 200, allPro : allpro });
 }
 
 
