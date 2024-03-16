@@ -125,6 +125,17 @@ const getProducts = async (req, res) => {
   }
 };
 
+const getInitialProducts = async (req, res) => {
+  const allProducts = await cjcategory.find()
+  const uni = [...new Set(allProducts.map(item => item.main_cat))]
+  let allpro = [];
+  await Promise.all(uni.map(async (category) => {
+      const products = await cjproducts.find({ merci_main_cat: category }).limit(25);
+      allpro.push(...products);
+  }));
+  return  res.status(200).send({allPro : allpro })
+}
+
 
 
 const getProduct = async (req, res) => {
@@ -337,5 +348,6 @@ module.exports = { getAllCategories,
   updatehHotProduct,  
   updatehValueProduct,
   deleteProduct,
-  updateSingleCJPrice, 
+  updateSingleCJPrice,
+  getInitialProducts
 };

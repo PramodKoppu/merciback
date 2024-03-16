@@ -11,13 +11,14 @@ const { getAllCategories,
  updatehValueProduct, 
  deleteProduct,
  updateSingleCJPrice,
+ getInitialProducts
 } = require('../Controllers/CJController');
 
 const Router = express.Router();
 
 Router.route('/categories').get(getAllCategories);
 Router.route('/addproducts').post(addProducts);
-Router.route('/cjproducts').post(getProducts);
+Router.route('/cjproducts').get(getInitialProducts).post(getProducts);
 Router.route('/cjproduct').post(getProductBySKU);
 Router.route('/cjproducts/:id').post(getProduct);
 // Router.route('/category').post(getCategory);
