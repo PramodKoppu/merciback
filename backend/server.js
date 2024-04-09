@@ -27,7 +27,11 @@ app.use('/api/doba', require('./Routes/DobaRoutes'));
 
 app.use('/api/cj', require('./Routes/CJRoutes'));
 
+app.use('/api/general', require('./Routes/EmartRoutes'));
+
 app.use('/api/deodap', require('./Routes/DeodapRoutes'));
+
+app.use('/api/order', require('./Routes/PaymentRoutes'));
 
 app.use('/api/rooftop', require('./Routes/RooftopRoutes'));
 
