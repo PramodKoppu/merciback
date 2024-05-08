@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv').config();
+const path = require('path');
 const cors = require('cors');
 
 const connectDB = require('./Config/db')
@@ -18,6 +19,8 @@ app.use(cors({origin: true}));
 
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ limit: '50mb', extended: true}));
+
+app.use('/backend/avatar', express.static(path.join(__dirname, 'avatar')));
 
 app.use('/api/user', require('./Routes/UserRoutes'));
 
@@ -38,6 +41,8 @@ app.use('/api/rooftop', require('./Routes/RooftopRoutes'));
 app.use('/api/meesho', require('./Routes/MeeshooRoutes'));
 
 app.use('/api/baap', require('./Routes/BaapRoutes'));
+
+app.use('/api/avatar', require('./Routes/UploadImage'));
 
 app.use('/api/percentage', require('./Routes/PercentageRoutes'));
 

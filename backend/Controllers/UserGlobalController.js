@@ -53,12 +53,45 @@ const createUser = async (req, res) => {
     res.status(200).json({status: 200, message: 'user created'});
 }
 
-const updateUser = (req, res) => {
-    res.status(200).json({message : 'update user Request'})
+// const updateUser = (req, res) => {
+//     res.status(200).json({message : 'update user Request'})
+// }
+
+// const deleteUser = (req, res) => {
+//     res.status(200).json({message : 'Delete user Request'})
+// }
+
+const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const { newData } = req.body;
+
+    try {
+        const updatedUser = await UserGlobal.findByIdAndUpdate(id, newData, { new: true }).select('-merci_password');
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        return res.status(200).send('Your Details Has Been Update');
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
 }
 
-const deleteUser = (req, res) => {
-    res.status(200).json({message : 'Delete user Request'})
+const deleteUser = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletedUser = await UserGlobal.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        return res.status(200).json({ message: 'User deleted successfully.' });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
 }
 
 const userlogin = async (req,res) => {

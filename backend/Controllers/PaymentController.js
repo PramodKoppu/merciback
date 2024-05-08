@@ -1,5 +1,6 @@
 const Razorpay = require('razorpay');
 const dotenv = require('dotenv').config();
+const crypto = require('crypto');
 
 const paymentControl = async (req, res) => {
     
@@ -25,5 +26,24 @@ const paymentControl = async (req, res) => {
     }
 }
 
+const paymentValidate = (req,res) => {
+    const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
 
-module.exports =  paymentControl; 
+    const sha = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
+    // order_id + " | " + razorpay_payment_id
+
+    sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+
+    const digest = sha.digest("hex");
+
+    if (digest!== razorpay_signature) {
+        return res.status(200).json({status: 400, msg: "Transaction is not complete.Please contact admin for further details."});
+    }
+    res.status(200).json({status: 200, msg: " Transaction is legit!", orderId: razorpay_order_id,paymentId: razorpay_payment_id});
+}
+
+
+module.exports =  { 
+    paymentControl, 
+    paymentValidate 
+}; 
