@@ -22,6 +22,19 @@ const getUser = async (req, res) => {
    return res.status(200).send(user);
 }  
 
+
+const getUserByPhone = async (req, res) => {
+
+    const { phone } = req.body;
+
+    const user = await UserGlobal.findOne({merci_phone: phone}).select('-merci_password');
+    if(!user) {
+        return res.status(500).json({message: 'The user with the given Phone Number was not found.'})
+    } 
+   return res.status(200).send(user);
+}  
+
+
 const createUser = async (req, res) => {
 
     const userExist = await UserGlobal.find({merci_phone: req.body.phone});
@@ -140,6 +153,7 @@ module.exports = {
     deleteUser,
     userlogin,
     userphone,
-    userPasswordUpdate
+    userPasswordUpdate,
+    getUserByPhone
 }
 

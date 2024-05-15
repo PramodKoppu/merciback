@@ -79,6 +79,14 @@ const purchasedDataSchema = new mongoose.Schema({
         merci_prod_img: {
             type: String,
             required: true
+        },   
+        status: {
+            type: Number,
+            default: 1
+        },
+        refund: {
+            type: Boolean,
+            default: false
         }
     }],
     total: {
@@ -100,14 +108,6 @@ const purchasedDataSchema = new mongoose.Schema({
     returnDate: {
         type: Date,
         required: true
-    },
-    status: {
-        type: Number,
-        default: 1
-    },
-    refund: {
-        type: Boolean,
-        default: false
     }
 }, {
     timestamps: true 
