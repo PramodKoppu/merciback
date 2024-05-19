@@ -91,6 +91,30 @@ const updateStatus = async (req, res) => {
     }
 };
 
+const cancelOrder = async (req, res) => {
+    const { ORID, spuid } = req.body;
+
+    try {
+        const order = await PurchasedData.findOne({ORID: ORID});
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const item = order.cartData.find(item => item.merci_spu_id === spuid);
+        if (item) {
+            item.status = 5;
+        } else {
+            return res.status(404).json({ message: 'Item not found in cart' });
+        }
+
+        await order.save();
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const updateRefund = async (req, res) => {
     try {
         const { ORID, refund } = req.body;
@@ -113,5 +137,6 @@ module.exports ={
     getPurchaseData,
     updateStatus,
     updateRefund,
-    getPurchaseDataById
+    getPurchaseDataById,
+    cancelOrder
 }

@@ -1,6 +1,8 @@
 const express = require('express');
 const { paymentControl, paymentValidate} = require('../Controllers/PaymentController');
-const { createPurchasedData, getDataWithUserID, updateStatus, updateRefund, getPurchaseData, getPurchaseDataById } = require('../Controllers/PurchaseController');
+const { createPurchasedData, getDataWithUserID, updateStatus, updateRefund, getPurchaseData, getPurchaseDataById, 
+    cancelOrder
+ } = require('../Controllers/PurchaseController');
 
 const Router = express.Router();
 
@@ -12,6 +14,7 @@ Router.route('/statusupdate').post(updateStatus);
 Router.route('/refundupdate').post(updateRefund);
 Router.route('/purchaseorders').get(getPurchaseData);
 Router.route('/ordersbyphone').post(getPurchaseDataById);
+Router.route('/cancelorder').post(cancelOrder);
 
 
 module.exports = Router
