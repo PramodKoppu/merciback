@@ -30,6 +30,8 @@ app.use('/api/doba', require('./Routes/DobaRoutes'));
 
 app.use('/api/cj', require('./Routes/CJRoutes'));
 
+app.use('/api/ratings', require('./Routes/RatingsRoutes'));
+
 app.use('/api/general', require('./Routes/EmartRoutes'));
 
 app.use('/api/deodap', require('./Routes/DeodapRoutes'));
