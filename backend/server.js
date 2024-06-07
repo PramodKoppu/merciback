@@ -50,5 +50,7 @@ app.use('/api/percentage', require('./Routes/PercentageRoutes'));
 
 app.use('/api/blood', require('./Routes/BloodContactsRoutes'));
 
+app.use('/api/coupons', require('./Routes/CouponRoutes'));
+
 
 app.listen(PORT, () => console.log(`Server is Running on ${PORT}`))

@@ -75,7 +75,26 @@ const rooftopShopSchema = new mongoose.Schema({
         type: Number,
         default: 200000,
     },
-
+    merci_balance : {
+        type: Number,
+        default: 0,
+    },
+    merci_total : {
+        type: Number,
+        default: 200000,
+    },
+    merci_coupons_balance : {
+        type: Number,
+        default: 0,
+    },
+    merci_coupons_generated : {
+        type: Number,
+        default: 0,
+    },
+    merci_coupons_used : {
+        type: Number,
+        default: 0,
+    }
 });
 
 rooftopShopSchema.virtual('id').get(function () {
