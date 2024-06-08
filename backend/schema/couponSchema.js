@@ -18,6 +18,10 @@ const couponSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    assignedPhone: {
+        type: Number,
+        default: null
+    },
     assignedId: {
         type: mongoose.Schema.Types.ObjectId,
         default: null
