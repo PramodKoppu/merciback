@@ -1,4 +1,7 @@
 const PurchasedData = require('../schema/purchasedSchema');
+const Coupon = require('../schema/couponSchema');
+const { rooftopShop } = require('../schema/rooftopShopSchema');
+const mongoose = require('mongoose');
 
 const createPurchasedData = async (req, res) => {
     try {
@@ -12,8 +15,39 @@ const createPurchasedData = async (req, res) => {
             total,
             shippingFee,
             discount,
-            returnDate
+            returnDate,
+            discountUpdates
         } = req.body;
+
+        // const merid = mongoose.Types.ObjectId(merchant);
+
+        for (let update of discountUpdates) {
+            const { merchantId, coupon, valueUsed } = update;
+            
+            // Update the rooftopShop collection
+            await rooftopShop.findByIdAndUpdate(
+                merchantId,
+                {
+                    $inc: {
+                        merci_coupons_balance : -valueUsed.toFixed(2),
+                        merci_coupons_used : valueUsed.toFixed(2)
+                    }
+                },
+                { new: true }
+            );
+    
+            // Update the Coupon collection
+            await Coupon.findOneAndUpdate(
+                { coupon: coupon },
+                {
+                    $inc: {
+                        used: valueUsed.toFixed(2)
+                    }
+                },
+                { new: true }
+            );
+        }
+
 
         const purchasedData = new PurchasedData({
             ORID,
