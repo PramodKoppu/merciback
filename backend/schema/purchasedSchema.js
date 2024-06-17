@@ -101,6 +101,20 @@ const purchasedDataSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    discountData: [{
+        coupon: {
+            type: String,
+            required: true
+        },
+        merchantId: {
+            type: String,
+            required: true
+        },
+        valueUsed: {
+            type: Number,
+            required: true
+        }
+    }],
     purchasedDate: {
         type: Date,
         default: Date.now

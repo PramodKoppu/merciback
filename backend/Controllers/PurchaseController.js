@@ -16,12 +16,12 @@ const createPurchasedData = async (req, res) => {
             shippingFee,
             discount,
             returnDate,
-            discountUpdates
+            discountData
         } = req.body;
 
         // const merid = mongoose.Types.ObjectId(merchant);
 
-        for (let update of discountUpdates) {
+        for (let update of discountData) {
             const { merchantId, coupon, valueUsed } = update;
             
             // Update the rooftopShop collection
@@ -59,7 +59,8 @@ const createPurchasedData = async (req, res) => {
             total,
             shippingFee,
             discount,
-            returnDate
+            returnDate,
+            discountData,
         });
 
         await purchasedData.save();

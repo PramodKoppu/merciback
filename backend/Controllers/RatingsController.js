@@ -40,7 +40,6 @@ const readAllRatings = async (req, res) => {
   // Create
   const createRatings = async (req, res) => {
     const merciData = req.body;
-    console.log(merciData);
     try {
       const newMerci = new ProdRatings(merciData);
       await newMerci.save();

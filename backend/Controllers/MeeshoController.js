@@ -175,7 +175,6 @@ const getProducts = async (req, res) => {
       return res.status(200).json({ status: 400, message: "No products found." });
     }
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ status: 500, message: "Internal Server Error." });
   }
 };

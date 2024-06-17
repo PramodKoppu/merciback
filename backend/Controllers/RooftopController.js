@@ -1,3 +1,4 @@
+const PurchasedData = require('../schema/purchasedSchema');
 const { rooftopShop } = require('../schema/rooftopShopSchema');
 const bcrypt = require('bcryptjs');
 
@@ -11,7 +12,6 @@ const bcrypt = require('bcryptjs');
 // }
 
 const getrooftopShop = async (req, res) => {
-    console.log(req.body.userName);
     const rooftop = await rooftopShop.findOne({merci_user_name: req.body.userName}).select('-merci_password');
     if(!rooftop) {
         return res.status(200).json({message: 'Shop with the given Username is not found.'})
@@ -66,11 +66,33 @@ const rooftopActive = async (req, res) => {
     return res.status(200).json({ status: 200, message: 'Shop Status cannot be updated'});
 }
 
+const findbyMerchantId = async (req,res) => {
+    const merchantId = req.body.merchantId;
+    try {
+      const results = await PurchasedData.aggregate([
+        { $unwind: '$discountData' }, 
+        { $match: { 'discountData.merchantId': merchantId } }, 
+        { $project: { ORID: 1, 'discountData.valueUsed': 1, 'discountData.coupon': 1 } } 
+      ]);
+  
+      const formattedResults = results.map(result => ({
+        ORID: result.ORID,
+        valueUsed: result.discountData.valueUsed,
+        coupon: result.discountData.coupon
+      }));
+  
+      return res.status(200).json({status: 200, data: formattedResults});
+    } catch (error) {
+        return res.status(200).json({ status: 400, message: 'Server error, please try again'});
+    }
+  };
+
 module.exports = {
     createrooftopShop,
     rooftopShopsList,
     checkrooftopShopName,
     rooftopActive,
     getrooftopShop,
+    findbyMerchantId
 }
 

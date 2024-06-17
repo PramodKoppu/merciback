@@ -5,6 +5,7 @@ const {
     checkrooftopShopName,
     rooftopActive,
     getrooftopShop,
+    findbyMerchantId
  } = require('../Controllers/RooftopController');
 
 const Router = express.Router();
@@ -15,7 +16,7 @@ Router.route('/addrooftop').post(createrooftopShop);
 Router.route('/rooftoplist').get(rooftopShopsList);
 Router.route('/checkusername').post(checkrooftopShopName);
 Router.route('/rooftopActive').post(rooftopActive);
-// Router.route('/useridCheck').post(useridCheck);
+Router.route('/transactionlist').post(findbyMerchantId);
 // Router.route('/phone').post(userphone);
 // Router.route('/referList').post(usersList);
 

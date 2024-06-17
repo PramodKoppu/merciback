@@ -68,7 +68,6 @@ const insertMultipleCoupons = async (req, res) => {
         await Coupon.insertMany(coupons);
         res.status(200).json({status: 400, message: 'Coupons Generated Successfully' });
     } catch (error) {
-        console.log(error);
         res.status(200).json({ status: 400, message: 'Server error' });
     }
 };

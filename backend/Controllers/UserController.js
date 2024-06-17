@@ -99,9 +99,7 @@ const userlogin = async (req,res) => {
 }
 
 const shoplogin = async (req,res) => {
-    // console.log(req.body.username);
     const shop = await rooftopShop.findOne({merci_user_name: req.body.username})
-    console.log(shop);
     if(!shop) {
         return res.json({ status: 400,  message: 'Username is Not Registered.'});
     }
@@ -179,7 +177,6 @@ const userPasswordUpdate = async (req,res) => {
 }
 
 const shopPasswordUpdate = async (req,res) => {
-    // console.log(req.body.username);
 
     const user = await rooftopShop.findById(req.body.id)
 
