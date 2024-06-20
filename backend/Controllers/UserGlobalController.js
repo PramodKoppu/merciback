@@ -1,5 +1,7 @@
 const { UserGlobal } = require('../schema/userGlobalSchema');
 const { rooftopShop } = require('../schema/rooftopShopSchema');
+const sendEmail = require('../utils/EmailConfig');
+const forgetemail = require('../constants/ForgetPassword');
 const bcrypt = require('bcryptjs');
 
 const getUsers = async (req, res) => {
@@ -133,15 +135,44 @@ const userPasswordUpdate = async (req,res) => {
 
     const user = await UserGlobal.findById(req.body.id)
 
-    if(user && bcrypt.compareSync(req.body.currentPassword, UserGlobal.merci_password)) {
+    if(user && bcrypt.compareSync(req.body.currentPassword, user.merci_password)) {
         const userUpdate = await UserGlobal.updateOne({"_id": req.body.id}, {$set: {"merci_password": bcrypt.hashSync(req.body.password, 10)}})
         if(userUpdate.modifiedCount > 0){
+            const sub = 'Password Changed Successfully';
+            const htmlMsg = '<p>Dear Member, Password for your account has been changed successfully. If not done by you, then change password immediately.</p>';
+            const emmsg = await sendEmail(user.merci_email, sub, htmlMsg); 
             res.status(200).send({status: 200, message: 'Password has been changed'}) 
         } else {
             res.status(200).send({status: 400, message: 'Password cannot be updated. Please try again'})
         }
     } else {
         res.status(200).send({status: 400, message: 'Current Password is wrong. Please try again'})
+    }
+}
+
+const userPasswordUpdatebyEmail = async (req,res) => {
+
+    const userUpdate = await UserGlobal.updateOne({"_id": req.body.id}, {$set: {"merci_password": bcrypt.hashSync(req.body.password, 10)}})
+    if(userUpdate.modifiedCount > 0){
+        res.status(200).send({status: 200, message: 'Password has been changed'}) 
+    } else {
+        res.status(200).send({status: 400, message: 'Password cannot be updated. Please try again'})
+    }
+    
+}
+
+const userPasswordEmail = async (req,res) => {
+
+    const user = await UserGlobal.findOne({merci_phone: req.body.phone});
+
+    const subject = 'Password Change Request'
+    const htmlMsg = forgetemail(user._id);
+    const response = await sendEmail(user.merci_email, subject, htmlMsg);
+
+    if(response) {
+        res.status(200).send({status: 200, message: 'An email has been sent to change password. Please check your email id'})
+    } else {
+        res.status(200).send({status: 400, message: 'Not able to send email. Please try again after few minutes'})
     }
 }
 
@@ -154,6 +185,8 @@ module.exports = {
     userlogin,
     userphone,
     userPasswordUpdate,
-    getUserByPhone
+    getUserByPhone,
+    userPasswordEmail,
+    userPasswordUpdatebyEmail
 }
 

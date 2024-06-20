@@ -7,7 +7,9 @@ deleteUser,
 userlogin,
 userphone,
 userPasswordUpdate,
-getUserByPhone} = require('../Controllers/UserGlobalController');
+getUserByPhone,
+userPasswordEmail,
+userPasswordUpdatebyEmail} = require('../Controllers/UserGlobalController');
 
 const Router = express.Router();
 
@@ -18,5 +20,7 @@ Router.route('/login').post(userlogin);
 Router.route('/phone').post(userphone);
 Router.route('/getPhone').post(getUserByPhone);
 Router.route('/updatePassword').post(userPasswordUpdate);
+Router.route('/changepass').post(userPasswordEmail);
+Router.route('/changepassbyemail').post(userPasswordUpdatebyEmail);
 
 module.exports = Router

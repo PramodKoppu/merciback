@@ -1,7 +1,9 @@
 const PurchasedData = require('../schema/purchasedSchema');
 const Coupon = require('../schema/couponSchema');
 const { rooftopShop } = require('../schema/rooftopShopSchema');
-const mongoose = require('mongoose');
+const { UserGlobal } = require('../schema/userGlobalSchema');
+const sendEmail = require('../utils/EmailConfig');
+const shippingDetail = require('../constants/ShippingDetails');
 
 const createPurchasedData = async (req, res) => {
     try {
@@ -48,6 +50,8 @@ const createPurchasedData = async (req, res) => {
             );
         }
 
+        const user = await UserGlobal.findById(userId).select('-merci_password');
+
 
         const purchasedData = new PurchasedData({
             ORID,
@@ -64,7 +68,7 @@ const createPurchasedData = async (req, res) => {
         });
 
         await purchasedData.save();
-
+        sendEmail(user.merci_email, `Your Order has been placed # ${ORID}`, shippingDetail(req.body))
         res.status(201).json({ message: 'Purchased data created successfully', data: purchasedData });
     } catch (error) {
         res.status(500).json({ message: error.message });
