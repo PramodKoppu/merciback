@@ -497,7 +497,6 @@ const shippingDetail = (shop) => {
                       width="600"
                       cellpadding="0"
                       cellspacing="0"
-                      class="m_-461565116948036772container"
                       style="padding-right:20px;padding-left:20px;background-color:#fff;width:642px;max-width:642px;padding-top:0px;padding-bottom:0px"
                     >
                       <tbody>

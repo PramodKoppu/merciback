@@ -2,6 +2,7 @@ const {emartContact} = require('../schema/emartContactSchema');
 const {emartNewsLetter} = require('../schema/emartNewLetterSchema');
 const {emartAddress} = require('../schema/emartAddress');
 const {emartPincode} = require('../schema/emartPincode');
+const newsEmail = require('../utils/NewsEmail');
 
 const addContactRequest = async (req, res) => {
   let contactRequest = new emartContact({
@@ -31,6 +32,34 @@ const getContactRequest = async (req, res) => {
 
   };
 
+  const sendContactReply = async (req, res) => {
+    
+    
+  const { id, email, subject, data } = req.body;
+
+  await newsEmail(email, subject, data)
+
+  try {
+    const updatedDocument = await emartContact.findByIdAndUpdate(
+      id,
+      { merci_response: data,
+        merci_isOpen: true
+       },
+      { new: true } // Option to return the modified document
+    );
+
+    if (updatedDocument) {
+      return res.status(200).json({ status: 200, message: 'Response updated successfully'});
+    } else {
+      return res.status(200).json({ status: 404, message: 'Document not found' });
+    }
+  } catch (error) {
+    console.error('Error updating document:', error);
+    return res.status(200).json({ status: 500, message: 'Internal Server Error', error: error.message });
+  }
+
+  };
+
 
   const addNewsLetterRequest = async (req, res) => {
     let newsLetterRequest = new emartNewsLetter({
@@ -53,6 +82,44 @@ const getContactRequest = async (req, res) => {
       return res.status(400).json({ status: 200, message: 'There is an error' });
   
     };
+
+    const sendNewLetterRequest = async (req, res) => {
+        const { subject, htmlMsg } = req.body;
+        try {
+          const contactList = await emartNewsLetter.find();
+          if (contactList) {
+            // Respond to the client immediately
+            res.status(200).json({ status: 200, message: "Emails are being sent" });
+      
+            // Send emails in the background
+            contactList.forEach(async (contact) => {
+              await newsEmail(contact.merci_email, subject, htmlMsg);
+            });
+          } else {
+            return res.status(200).json({ status: 400, message: "No contacts found" });
+          }
+        } catch (error) {
+          console.error('Error finding contacts:', error);
+          return res.status(200).json({ status: 500, message: "Internal Server Error" });
+        }
+    
+      };
+
+    const deleteNewsletterRequest = async (req, res) => {
+        const { id } = req.params; // Extract the id from the request parameters
+      
+        try {
+          const result = await emartNewsLetter.findByIdAndDelete(id); // Use findByIdAndDelete to delete the document by id
+      
+          if (result) {
+            return res.status(200).json({ status: 200, message: 'Successfully deleted', deletedItem: result });
+          } else {
+            return res.status(404).json({ status: 404, message: 'Item not found' });
+          }
+        } catch (error) {
+          return res.status(500).json({ status: 500, message: 'Internal Server Error', error: error.message });
+        }
+      };
 
 const createAddress =  async (req, res) => {
     try {
@@ -139,5 +206,8 @@ const getAddressByPincode = async (req, res) => {
     getAddressById,
     updateAddress,
     deleteAddress,
-    getAddressByPincode
+    getAddressByPincode,
+    deleteNewsletterRequest,    
+    sendNewLetterRequest,
+    sendContactReply
   }
