@@ -37,11 +37,54 @@ const getAllCategories = async (req, res) => {
   }
 };
 
+
+// const tryParseJSON = (jsonString) => {
+//   console.log('str', jsonString);
+//   try {
+//     const obj = JSON.parse(jsonString);
+//     if (obj && typeof obj === 'object') {
+//       return obj;
+//     }
+//   } catch (e) {
+//     // not a JSON string
+//   }
+//   return jsonString;
+// };
+
 const addProducts = async (req, res) => {
 
+  // console.log('prod', req.body.productsList);
 
-  const productsInstances = req.body.productsList.map((product) => new cjproducts(product));
-  cjproducts.insertMany(productsInstances)
+  
+    // const modifiedData = req.body.productsList.map(row => {
+    //   console.log('json', row.merci_material);
+    //   row.merci_prod_images = tryParseJSON(row.merci_prod_images);
+    //   row.merci_material = tryParseJSON(row.merci_material);
+    //   row.merci_subprod = tryParseJSON(row.merci_subprod);
+    //   return row;
+    // });
+
+    // console.log('prod', modifiedData);
+
+  // const productsInstances = req.body.productsList.map((product) => new cjproducts(product));
+  
+  const productsList = req.body.productsList.map(product => ({
+    merci_main_cat: product.merci_main_cat,
+    merci_sub_cat: product.merci_sub_cat,
+    merci_low_cat: product.merci_low_cat,
+    merci_spu_id: product.merci_spu_id,
+    merci_prod_name: product.merci_prod_name,
+    merci_mrp: product.merci_mrp,
+    merci_prod_img: product.merci_prod_images, // Ensure the field name matches the schema
+    merci_ishot: product.merci_ishot,
+    merci_merci_discount: product.merci_merci_discount,
+    merci_us_discount: product.merci_us_discount,
+    merci_isValuable: product.merci_isValuable,
+    merci_variantKey: product.merci_variant_key, // Ensure the field name matches the schema
+    merci_subProd: product.merci_subprod, // Ensure the field name matches the schema
+  }));
+
+  cjproducts.insertMany(productsList)
     .then((result) => {
       return res.status(200).json({ status: 200,  message: `${result.length} products saved to the database.`});
     })

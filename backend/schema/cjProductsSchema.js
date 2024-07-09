@@ -17,10 +17,6 @@ const cjproductsbackupSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  merci_category_id: {
-    type: String,
-    required: true,
-  },
   merci_prod_name: {
     type: String,
     required: true,
@@ -31,7 +27,7 @@ const cjproductsbackupSchema = new mongoose.Schema({
   },
   merci_prod_img: {
     type: String,
-    default: "",
+    default: '',
   },
   merci_ishot: {
     type: Boolean,
@@ -48,6 +44,14 @@ const cjproductsbackupSchema = new mongoose.Schema({
   merci_isValuable: {
     type: Boolean,
     default: false,
+  },
+  merci_variantKey: {
+    type: String,
+    default: '',
+  },
+  merci_subProd: {
+    type: String,
+    default: ''
   }
 });
 cjproductsbackupSchema.virtual("id").get(function () {
@@ -61,6 +65,6 @@ cjproductsbackupSchema.set("toJSON", {
 exports.cjproducts = mongoose.model(
   "cjproducts",
   cjproductsbackupSchema,
-  "cjproducts"
+  "cjproductsnew"
 );
 exports.cjproductsbackupSchema = cjproductsbackupSchema;
