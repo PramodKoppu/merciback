@@ -1,7 +1,7 @@
 const express = require('express');
 const { paymentControl, paymentValidate} = require('../Controllers/PaymentController');
 const { createPurchasedData, getDataWithUserID, updateStatus, updateRefund, getPurchaseData, getPurchaseDataById, 
-    cancelOrder
+    cancelOrder, createShopData, getCommissionData
  } = require('../Controllers/PurchaseController');
 
 const Router = express.Router();
@@ -15,6 +15,8 @@ Router.route('/refundupdate').post(updateRefund);
 Router.route('/purchaseorders').get(getPurchaseData);
 Router.route('/ordersbyphone').post(getPurchaseDataById);
 Router.route('/cancelorder').post(cancelOrder);
+Router.route('/shopPurchase').post(createShopData);
+Router.route('/commission/:level/:refer_id').get(getCommissionData);
 
 
 module.exports = Router

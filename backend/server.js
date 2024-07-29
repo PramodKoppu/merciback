@@ -26,7 +26,7 @@ app.use('/api/user', require('./Routes/UserRoutes'));
 
 app.use('/api/globalUser', require('./Routes/UserGlobalRoutes'));
 
-app.use('/api/doba', require('./Routes/DobaRoutes'));
+// app.use('/api/doba', require('./Routes/DobaRoutes'));
 
 app.use('/api/cj', require('./Routes/CJRoutes'));
 
@@ -34,15 +34,15 @@ app.use('/api/ratings', require('./Routes/RatingsRoutes'));
 
 app.use('/api/general', require('./Routes/EmartRoutes'));
 
-app.use('/api/deodap', require('./Routes/DeodapRoutes'));
+// app.use('/api/deodap', require('./Routes/DeodapRoutes'));
 
 app.use('/api/order', require('./Routes/PaymentRoutes'));
 
 app.use('/api/rooftop', require('./Routes/RooftopRoutes'));
 
-app.use('/api/meesho', require('./Routes/MeeshooRoutes'));
+// app.use('/api/meesho', require('./Routes/MeeshooRoutes'));
 
-app.use('/api/baap', require('./Routes/BaapRoutes'));
+// app.use('/api/baap', require('./Routes/BaapRoutes'));
 
 app.use('/api/avatar', require('./Routes/UploadImage'));
 

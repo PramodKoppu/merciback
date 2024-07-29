@@ -14,7 +14,8 @@ usersList,
 shoplogin, 
 getShopUser,
 userPasswordUpdate,
-shopPasswordUpdate} = require('../Controllers/UserController');
+shopPasswordUpdate,
+fetchHierarchy} = require('../Controllers/UserController');
 
 const Router = express.Router();
 
@@ -31,5 +32,6 @@ Router.route('/referList').post(usersList);
 Router.route('/getshopuser/:id').get(getShopUser);
 Router.route('/updatePassword').post(userPasswordUpdate);
 Router.route('/updateShopPassword').post(shopPasswordUpdate);
+Router.route('/hierarchy/:referId/:level').get(fetchHierarchy);
 
 module.exports = Router
