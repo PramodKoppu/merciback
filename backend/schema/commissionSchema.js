@@ -12,35 +12,35 @@ const commissionDataSchema = new mongoose.Schema({
   },
   level1: {
     type: String,
-    required: true
+    default: '',
   },
   commissionL1: {
     type: Number,
-    required: true
+    default: 0
   },
   level2: {
     type: String,
-    required: true
+    default: ''
   },
   commissionL2: {
     type: Number,
-    required: true
+    default: 0
   },
   level3: {
     type: String,
-    required: true
+    default: ''
   },
   commissionL3: {
     type: Number,
-    required: true
+    default: 0
   },
   level4: {
     type: String,
-    required: true
+    default: ''
   },
   commissionL4: {
     type: Number,
-    required: true
+    default: 0
   },
   createdAt: {
     type: Date,

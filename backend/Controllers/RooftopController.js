@@ -49,7 +49,8 @@ const checkrooftopShopName = async (req,res) => {
 
 
 const rooftopShopsList = async (req,res) => {
-    const shops = await rooftopShop.find({})
+    const { refer }  = req.params 
+    const shops = await rooftopShop.find({merci_refer: refer})
     if(!shops) {
         return res.status(200).json({ status: 400,  message: 'No Shops Registered With given rooftopShopname'});
     }

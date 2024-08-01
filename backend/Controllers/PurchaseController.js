@@ -126,6 +126,8 @@ const createShopData = async (req, res) => {
         commissionL4: commissionData.find(data => data.level === 'Level 4').commission
       };
 
+      // console.log(finalCommissionData);
+
       const newCommissionData = new CommissionData(finalCommissionData);
       await newCommissionData.save();
       
@@ -156,6 +158,16 @@ const getCommissionData = async (req, res) => {
     query[`level${level.match(/\d+/)[0]}`] = refer_id;
 
     const commissionData = await CommissionData.find(query).lean();
+
+    for (let i = 0; i < commissionData.length; i++) {
+      const shopData = await rooftopShop.findById(commissionData[i].userId);
+  
+      commissionData[i].merci_shop_details = {
+          merci_shop_name: shopData.merci_shop_name,
+          merci_full_name: shopData.merci_full_name,
+          merci_phone: shopData.merci_phone,
+      };
+  }
 
     if (commissionData.length === 0) {
       return res.status(404).json({ message: 'No commission data found' });

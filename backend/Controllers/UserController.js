@@ -312,7 +312,7 @@ const getUsersHierarchy = async (referId, level ) => {
   
   const users = await User.find({
     [`merci_tree.${level}`]: referId
-  }).lean(); // Use lean to reduce memory usage
+  }).select("-merci_password").lean(); // Use lean to reduce memory usage
 
   if (users.length === 0) {
     return [];
