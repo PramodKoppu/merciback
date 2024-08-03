@@ -8,6 +8,7 @@ const { User } = require("../schema/userSchema");
 const distributePayment = require("../utils/distribution");
 const CommissionData = require("../schema/commissionSchema");
 const { rooftopShop } = require('../schema/rooftopShopSchema');
+const setCommision = require('../utils/setCommissions');
 
 const createPurchasedData = async (req, res) => {
   try {
@@ -25,13 +26,28 @@ const createPurchasedData = async (req, res) => {
       discountData,
     } = req.body;
 
-    // const merid = mongoose.Types.ObjectId(merchant);
+    const user = await UserGlobal.findById(userId).select("-merci_password");
+    const commissionUpdates = [];
 
     for (let update of discountData) {
       const { merchantId, coupon, valueUsed } = update;
 
-      // Update the rooftopShop collection
-      await rooftopShop.findByIdAndUpdate(
+      const rooftopShopData = await rooftopShop.findById(merchantId).select('merci_refer');
+      const userWithRefer = await User.findOne({ merci_refer_id: rooftopShopData.merci_refer });
+
+      if (userWithRefer) {
+        const { merci_level, merci_tree, merci_refer_id } = userWithRefer;
+
+        // Update the merci_tree with the new refer ID
+        merci_tree[merci_level.replace(' ', '')] = merci_refer_id;
+
+        // Prepare commission data to save
+        const newCommissionData = new CommissionData(setCommision(merchantId, merci_tree, total));
+        commissionUpdates.push(newCommissionData.save());
+      }
+
+      // Prepare updates for rooftopShop and Coupon collections
+      const rooftopShopUpdate = rooftopShop.findByIdAndUpdate(
         merchantId,
         {
           $inc: {
@@ -42,8 +58,7 @@ const createPurchasedData = async (req, res) => {
         { new: true }
       );
 
-      // Update the Coupon collection
-      await Coupon.findOneAndUpdate(
+      const couponUpdate = Coupon.findOneAndUpdate(
         { coupon: coupon },
         {
           $inc: {
@@ -52,10 +67,15 @@ const createPurchasedData = async (req, res) => {
         },
         { new: true }
       );
+
+      // Execute updates concurrently
+      await Promise.all([rooftopShopUpdate, couponUpdate]);
     }
 
-    const user = await UserGlobal.findById(userId).select("-merci_password");
+    // Save all commission data concurrently
+    await Promise.all(commissionUpdates);
 
+    // Save purchased data
     const purchasedData = new PurchasedData({
       ORID,
       userId,
@@ -71,17 +91,18 @@ const createPurchasedData = async (req, res) => {
     });
 
     await purchasedData.save();
+
+    // Send confirmation email
     sendEmail(
       user.merci_email,
       `Your Order has been placed # ${ORID}`,
       shippingDetail(req.body)
     );
-    res
-      .status(201)
-      .json({
-        message: "Purchased data created successfully",
-        data: purchasedData,
-      });
+
+    res.status(201).json({
+      message: "Purchased data created successfully",
+      data: purchasedData,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
