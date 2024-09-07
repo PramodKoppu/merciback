@@ -126,7 +126,7 @@ const createShopData = async (req, res) => {
     const merci_tree = user.merci_tree;
     const merci_level = user.merci_level;
 
-    const distribution = distributePayment(merci_tree, merci_level, total)
+    const distribution = distributePayment(merci_tree, merci_level, total, false)
 
     const commissionData = Object.keys(merci_tree).map(level => ({
         level: level.replace(/(\d)/, ' $1'),  // Format the level as 'Level 1', 'Level 2', etc.
@@ -155,6 +155,63 @@ const createShopData = async (req, res) => {
       await shopPay.save();
       await rooftopShop.findByIdAndUpdate(userId, { merci_isPayment: true });
       // sendEmail(user.merci_email, `Your Order has been placed # ${ORID}`, shippingDetail(req.body))
+    res
+      .status(201)
+      .json({
+        message: "Purchased has been successful",
+        data: shopPayment,
+      });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+const createMonthlyData = async (req, res) => {
+  try {
+    const { ORID, userId, orderID, paymentID, total, refer } = req.body;
+
+    const shopPay = new shopPayment({
+      ORID,
+      userId,
+      orderID,
+      paymentID,
+      total,
+      refer,
+    });
+
+    const user = await User.findOne({ merci_refer_id: refer }).lean();
+
+    const merci_tree = user.merci_tree;
+    const merci_level = user.merci_level;
+
+    const distribution = distributePayment(merci_tree, merci_level, total, true)
+
+    const commissionData = Object.keys(merci_tree).map(level => ({
+        level: level.replace(/(\d)/, ' $1'),  // Format the level as 'Level 1', 'Level 2', etc.
+        refer_id: level === merci_level.replace(' ', '') ? refer : merci_tree[level],
+        commission: distribution[level] || 0
+      }));
+  
+      const finalCommissionData = {
+        userId,
+        paymentType: 'monthly',
+        level1: commissionData.find(data => data.level === 'Level 1').refer_id,
+        commissionL1: commissionData.find(data => data.level === 'Level 1').commission,
+        level2: commissionData.find(data => data.level === 'Level 2').refer_id,
+        commissionL2: commissionData.find(data => data.level === 'Level 2').commission,
+        level3: commissionData.find(data => data.level === 'Level 3').refer_id,
+        commissionL3: commissionData.find(data => data.level === 'Level 3').commission,
+        level4: commissionData.find(data => data.level === 'Level 4').refer_id,
+        commissionL4: commissionData.find(data => data.level === 'Level 4').commission
+      };
+
+      // console.log(finalCommissionData);
+
+      const newCommissionData = new CommissionData(finalCommissionData);
+      await newCommissionData.save();
+      
+      
     res
       .status(201)
       .json({
@@ -314,5 +371,6 @@ module.exports = {
   getPurchaseDataById,
   cancelOrder,
   createShopData,
-  getCommissionData
+  getCommissionData,
+  createMonthlyData
 };

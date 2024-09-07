@@ -5,7 +5,11 @@ const {
     checkrooftopShopName,
     rooftopActive,
     getrooftopShop,
-    findbyMerchantId
+    findbyMerchantId,
+    addMerci,
+    getAllMerci,
+    deleteMerci,
+    getMonthlyPurchase
  } = require('../Controllers/RooftopController');
 
 const Router = express.Router();
@@ -17,6 +21,10 @@ Router.route('/rooftoplist/:refer').get(rooftopShopsList);
 Router.route('/checkusername').post(checkrooftopShopName);
 Router.route('/rooftopActive').post(rooftopActive);
 Router.route('/transactionlist').post(findbyMerchantId);
+Router.route('/monthlylist').post(getMonthlyPurchase);
+Router.route('/addProduct').post(addMerci);
+Router.route('/getProduct').get(getAllMerci);
+Router.route('/product/:id').delete(deleteMerci);
 // Router.route('/phone').post(userphone);
 // Router.route('/referList').post(usersList);
 

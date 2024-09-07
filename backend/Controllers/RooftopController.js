@@ -1,6 +1,9 @@
 const PurchasedData = require('../schema/purchasedSchema');
 const { rooftopShop } = require('../schema/rooftopShopSchema');
+const { rooftopAddProducts } = require('../schema/rooftopAddProductsSchema');
+
 const bcrypt = require('bcryptjs');
+const CommissionData = require('../schema/commissionSchema');
 
 // const getrooftopShops = async (req, res) => {
 
@@ -88,12 +91,66 @@ const findbyMerchantId = async (req,res) => {
     }
   };
 
+  const addMerci = async (req, res) => {
+    try {
+        const { merci_title, merci_description, merci_price, merci_quantity } = req.body.prodData;
+
+        const merci = new rooftopAddProducts({
+            merci_title,
+            merci_description,
+            merci_price,
+            merci_quantity
+        });
+
+        await merci.save();
+        res.status(200).json({ message: 'Merci item added successfully', status: 200 });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Get All Merci Items
+const getAllMerci = async (req, res) => {
+    try {
+        const merciItems = await rooftopAddProducts.find();
+        res.status(200).json(merciItems);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Delete Merci Item
+const deleteMerci = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await rooftopAddProducts.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Merci item deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getMonthlyPurchase = async (req,res) => {
+    const user = req.body.merchantId
+    const trans = await CommissionData.find({userId: user, paymentType: 'monthly'})
+    if(!trans) {
+        return res.status(200).json({ status: 400,  message: 'No Monthly Transactions done'});
+    }
+    return res.status(200).json({ status: 200, transList: trans});
+}
+
+
+
 module.exports = {
     createrooftopShop,
     rooftopShopsList,
     checkrooftopShopName,
     rooftopActive,
     getrooftopShop,
-    findbyMerchantId
+    findbyMerchantId,
+    addMerci,
+    getAllMerci,
+    deleteMerci,
+    getMonthlyPurchase
 }
 
