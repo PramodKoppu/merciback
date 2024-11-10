@@ -9,6 +9,17 @@ const distributePayment = require("../utils/distribution");
 const CommissionData = require("../schema/commissionSchema");
 const { rooftopShop } = require('../schema/rooftopShopSchema');
 const setCommision = require('../utils/setCommissions');
+const sendTemplateMessage = require("../test/wp");
+
+
+const formatDate = () => {
+  const today = new Date();
+  const day = today.getDate();
+  const month = today.toLocaleString('default', { month: 'short' });
+  const year = today.getFullYear();
+  return `${day}, ${month}, ${year}`;
+};
+
 
 const createPurchasedData = async (req, res) => {
   try {
@@ -98,6 +109,8 @@ const createPurchasedData = async (req, res) => {
       `Your Order has been placed # ${ORID}`,
       shippingDetail(req.body)
     );
+
+    sendTemplateMessage(user.merci_phone, user.merci_full_name, ORID, formatDate())
 
     res.status(201).json({
       message: "Purchased data created successfully",
