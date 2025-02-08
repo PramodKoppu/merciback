@@ -1,5 +1,6 @@
 const Coupon = require('../schema/couponSchema');
 const { rooftopShop } = require('../schema/rooftopShopSchema');
+const { greenMoneyTr } = require('../test/wp');
 
 const getCouponsByMerchantId = async (req, res) => {
     const { merchantId } = req.params;
@@ -50,7 +51,7 @@ const updateCouponUsage = async (req, res) => {
 };
 
 const insertMultipleCoupons = async (req, res) => {
-    const { coupons, amount, merchantId } = req.body;
+    const { coupons, amount, merchantId, phone } = req.body;
     try {
 
         const rooftop = await rooftopShop.findById(merchantId);
@@ -66,6 +67,7 @@ const insertMultipleCoupons = async (req, res) => {
         // Save the updated merchant
         await rooftop.save();
         await Coupon.insertMany(coupons);
+        greenMoneyTr(phone, rooftop.merci_full_name, amount);
         res.status(200).json({status: 400, message: 'Coupons Generated Successfully' });
     } catch (error) {
         res.status(200).json({ status: 400, message: 'Server error' });

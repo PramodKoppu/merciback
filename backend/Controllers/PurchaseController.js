@@ -9,7 +9,7 @@ const distributePayment = require("../utils/distribution");
 const CommissionData = require("../schema/commissionSchema");
 const { rooftopShop } = require('../schema/rooftopShopSchema');
 const setCommision = require('../utils/setCommissions');
-const sendTemplateMessage = require("../test/wp");
+const { sendTemplateMessage, sendWPStatus } = require("../test/wp");
 
 
 const formatDate = () => {
@@ -304,8 +304,19 @@ const getPurchaseDataById = async (req, res) => {
   }
 };
 
+const statusValue = [
+    "Order Placed",
+    "Order Shipped",
+    "Out For Delivery",
+    "Delivered",
+    "Cancelled",
+    "Return Started",
+    "Refund Initiated",
+    "Refund Completed",
+  ];
+
 const updateStatus = async (req, res) => {
-  const { ORID, spuid } = req.body;
+  const { name, number, ORID, spuid } = req.body;
 
   try {
     const order = await PurchasedData.findOne({ ORID: ORID });
@@ -321,6 +332,8 @@ const updateStatus = async (req, res) => {
     }
 
     await order.save();
+
+    sendWPStatus(number, name, ORID, statusValue[item.status-1])
 
     res.json(order);
   } catch (error) {
