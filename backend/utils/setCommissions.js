@@ -4,7 +4,7 @@ const setCommision = (userId,merciTree, total) => {
         level1: 0,     // To be calculated based on remaining amount
         level2: merciTree.Level2 ? parseFloat((total * 0.005).toFixed(2)) : 0,  // 0.5%
         level3: merciTree.Level3 ? parseFloat((total * 0.01).toFixed(2)) : 0,    // 1%
-        level4: merciTree.Level4 ? parseFloat((total * 0.07).toFixed(2)) : 0,     // 7%
+        level4: merciTree.Level4 ? parseFloat((total * 0.03).toFixed(2)) : 0,     // 3%
       };
   
       let level1Commission = total - (commissionRates.level2 + commissionRates.level3 + commissionRates.level4);
