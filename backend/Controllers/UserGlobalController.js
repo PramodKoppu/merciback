@@ -221,10 +221,10 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (id, password) => {
     try {
         // Validate password strength
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        if (!passwordRegex.test(password)) {
-            return { status: 400, message: "Password must be at least 8 characters, include 1 uppercase letter and 1 number." };
-        }
+        // const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        // if (!passwordRegex.test(password)) {
+        //     return { status: 400, message: "Password must be at least 8 characters, include 1 uppercase letter and 1 number." };
+        // }
 
         // Find user by ID
         const user = await UserGlobal.findById(id);
