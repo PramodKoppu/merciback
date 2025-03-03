@@ -176,6 +176,84 @@ const userPasswordEmail = async (req,res) => {
     }
 }
 
+
+const forgotPassword = async (req, res) => {
+    try {
+        console.log('body', req.body);
+
+        const { phone } = req.body;
+
+        // Find user by phone number
+        const user = await UserGlobal.findOne({ merci_phone: phone });
+
+        if (!user) {
+            return res.status(400).send({ status: 400, message: 'Phone number not found. Please try again' });
+        }
+
+        const userId = user._id;
+        const resetLink = `https://www.merciemart.com/resetpassword/${userId}`;
+
+        // Email details
+        const subject = 'Password Reset Request';
+        const htmlMsg = `
+            <p>Dear Member,</p>
+            <p>We received a request to reset your password. Please click the link below to reset your password:</p>
+            <p><a href="${resetLink}">${resetLink}</a></p>
+            <p>If you did not request this change, please ignore this email.</p>
+            <p>MerciMart Support Team</p>
+        `;
+
+        // Send email
+        const emailSent = await sendEmail(user.merci_email, subject, htmlMsg);
+
+        if (emailSent) {
+            return res.status(200).send({ status: 200, message: 'Reset password link has been sent to your email' });
+        } else {
+            return res.status(500).send({ status: 500, message: 'Failed to send email. Please try again later' });
+        }
+    } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        return res.status(500).send({ status: 500, message: 'Internal server error' });
+    }
+};
+
+
+const resetPassword = async (id, password) => {
+    try {
+        // Validate password strength
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return { status: 400, message: "Password must be at least 8 characters, include 1 uppercase letter and 1 number." };
+        }
+
+        // Find user by ID
+        const user = await UserGlobal.findById(id);
+        if (!user) {
+            return { status: 400, message: "User not found." };
+        }
+
+        // Hash the new password
+        const hashedPassword = bcrypt.hashSync(password, 10);
+
+        // Update password in database
+        const updateResult = await UserGlobal.updateOne(
+            { _id: id },
+            { $set: { merci_password: hashedPassword } }
+        );
+
+        if (updateResult.modifiedCount > 0) {
+            return { status: 200, message: "Password reset successfully!" };
+        } else {
+            return { status: 400, message: "Failed to reset password. Please try again." };
+        }
+
+    } catch (error) {
+        console.error("Error in resetPassword:", error);
+        return { status: 500, message: "Internal server error." };
+    }
+};
+
+
 module.exports = {
     getUsers,
     getUser,
@@ -187,6 +265,8 @@ module.exports = {
     userPasswordUpdate,
     getUserByPhone,
     userPasswordEmail,
-    userPasswordUpdatebyEmail
+    userPasswordUpdatebyEmail,
+    forgotPassword,
+    resetPassword,
 }
 
