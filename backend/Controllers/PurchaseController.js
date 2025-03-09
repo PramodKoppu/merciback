@@ -53,7 +53,7 @@ const createPurchasedData = async (req, res) => {
         merci_tree[merci_level.replace(' ', '')] = merci_refer_id;
 
         // Prepare commission data to save
-        const newCommissionData = new CommissionData(setCommision(merchantId, merci_tree, total));
+        const newCommissionData = new CommissionData(setCommision(merchantId, merci_tree, discount));
         commissionUpdates.push(newCommissionData.save());
       }
 
