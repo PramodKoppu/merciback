@@ -84,6 +84,42 @@ const createPurchasedData = async (req, res) => {
   try {
     const { ORID, userId, orderID, paymentID, address, cartData, total, shippingFee, discount, returnDate, discountData } = req.body;
 
+    const user = await User.findOne({ merci_refer_id: req.body.userId }).lean();
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const merci_tree = user.merci_tree;
+    const merci_level = user.merci_level;
+
+    // 🏷️ **Calculate commission based on total purchase**
+    const distribution = distributePayment(merci_tree, merci_level, total, false);
+
+    // 🏷️ **Prepare commission data for saving**
+    const commissionData = Object.keys(merci_tree).map(level => ({
+      level,
+      refer_id: level === merci_level.replace(" ", "") ? user.merci_refer_id : merci_tree[level],
+      commission: distribution[level] || 0
+    }));
+
+    // 🏷️ **Prepare final commission data**
+    const finalCommissionData = {
+      userId: req.body.userId,
+      paymentType: "purchase",
+      level1: commissionData.find(data => data.level === "Level 1")?.refer_id,
+      commissionL1: commissionData.find(data => data.level === "Level 1")?.commission || 0,
+      level2: commissionData.find(data => data.level === "Level 2")?.refer_id,
+      commissionL2: commissionData.find(data => data.level === "Level 2")?.commission || 0,
+      level3: commissionData.find(data => data.level === "Level 3")?.refer_id,
+      commissionL3: commissionData.find(data => data.level === "Level 3")?.commission || 0,
+      level4: commissionData.find(data => data.level === "Level 4")?.refer_id,
+      commissionL4: commissionData.find(data => data.level === "Level 4")?.commission || 0,
+    };
+
+    // 🏷️ **Save commission data**
+    await new CommissionData(finalCommissionData).save();
+
+    
     await Promise.all(discountData.map(async (update) => {
       const { merchantId, valueUsed } = update;
       const rooftopShopData = await rooftopShop.findById(merchantId).select("merci_plan");
@@ -118,7 +154,7 @@ const createPurchasedData = async (req, res) => {
 
 
     // Notify user
-    const user = await User.findOne({ merci_refer_id: purchasedData.userId });
+    // const userData = await User.findOne({ merci_refer_id: purchasedData.userId });
     if (user) {
       sendEmail(user.merci_email, `Your Order has been placed # ${ORID}`, shippingDetail(req.body));
       sendTemplateMessage(user.merci_phone, user.merci_full_name, ORID, formatDate());
