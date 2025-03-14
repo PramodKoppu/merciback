@@ -26,6 +26,7 @@ const getrooftopShop = async (req, res) => {
 const createrooftopShop = async (req, res) => {
 
     let data = req.body.shopDetails;
+    console.log('data', data);
     data = {...data, merci_password: bcrypt.hashSync(data.merci_password, 10)}
     //let rooftopShopVal = new rooftopShop(data);
     rooftopRes = await rooftopShop.insertMany(data);

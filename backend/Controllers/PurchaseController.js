@@ -21,11 +21,96 @@ const formatDate = () => {
 };
 
 
+const handlePlanTwoCommission = async (merchantId, valueUsed, discount) => {
+  try {
+    const rooftopShopData = await rooftopShop.findById(merchantId).select("merci_refer merci_coupons_used merci_plan");
+    if (!rooftopShopData || rooftopShopData.merci_plan !== "plan_two") return;
+
+    const userId = rooftopShopData.merci_refer; // User ID from rooftopShop refer_id
+    const userWithRefer = await User.findOne({ merci_refer_id: userId });
+    if (!userWithRefer) return;
+
+    console.log('user', userWithRefer);
+
+    let newCouponsUsed = parseFloat(rooftopShopData.merci_coupons_used) + parseFloat(valueUsed);
+    const { merci_level, merci_tree, merci_refer_id } = userWithRefer;
+
+    console.log('new', newCouponsUsed);
+
+    // Update merci_tree with new refer ID
+    merci_tree[merci_level.replace(" ", "")] = merci_refer_id;
+
+    let commissionData = [];
+
+    // Trigger commission at 3000 & 6000 milestones
+    if (newCouponsUsed >= 3000 && rooftopShopData.merci_coupons_used < 3000) {
+      commissionData.push(
+        { level: "Level 4", refer_id: merci_tree["Level 4"] || null, commission: 1500 },
+        { level: "Level 3", refer_id: merci_tree["Level 3"] || null, commission: 300 },
+        { level: "Level 2", refer_id: merci_tree["Level 2"] || null, commission: 150 },
+        { level: "Level 1", refer_id: merci_tree["Level 1"] || null, commission: 0 }
+      );
+    }
+
+    if (newCouponsUsed >= 6000 && rooftopShopData.merci_coupons_used < 6000) {
+      commissionData.push(
+        { level: "Level 4", refer_id: merci_tree["Level 4"] || null, commission: 1500 },
+        { level: "Level 3", refer_id: merci_tree["Level 3"] || null, commission: 300 },
+        { level: "Level 2", refer_id: merci_tree["Level 2"] || null, commission: 150 },
+        { level: "Level 1", refer_id: merci_tree["Level 1"] || null, commission: 0 }
+      );
+    }
+
+    if (commissionData.length > 0) {
+      const finalCommissionData = {
+        userId,
+        paymentType: "shop",
+        level1: commissionData.find((data) => data.level === "Level 1")?.refer_id,
+        commissionL1: commissionData.find((data) => data.level === "Level 1")?.commission || 0,
+        level2: commissionData.find((data) => data.level === "Level 2")?.refer_id,
+        commissionL2: commissionData.find((data) => data.level === "Level 2")?.commission || 0,
+        level3: commissionData.find((data) => data.level === "Level 3")?.refer_id,
+        commissionL3: commissionData.find((data) => data.level === "Level 3")?.commission || 0,
+        level4: commissionData.find((data) => data.level === "Level 4")?.refer_id,
+        commissionL4: commissionData.find((data) => data.level === "Level 4")?.commission || 0,
+      };
+
+      const newCommissionData = new CommissionData(finalCommissionData);
+      await newCommissionData.save();
+    }
+
+    // Update rooftopShop & Coupon balance
+    await rooftopShop.findByIdAndUpdate(
+      merchantId,
+      {
+        $inc: {
+          merci_coupons_balance: -valueUsed.toFixed(2),
+          merci_coupons_used: valueUsed.toFixed(2),
+        },
+      },
+      { new: true }
+    );
+
+    await Coupon.findOneAndUpdate(
+      { coupon: discount.coupon },
+      {
+        $inc: {
+          used: valueUsed.toFixed(2),
+        },
+      },
+      { new: true }
+    );
+  } catch (error) {
+    console.error("Error processing Plan Two commission:", error);
+  }
+};
+
+
+
 const createPurchasedData = async (req, res) => {
   try {
     const {
       ORID,
-      userId,
       orderID,
       paymentID,
       address,
@@ -37,59 +122,43 @@ const createPurchasedData = async (req, res) => {
       discountData,
     } = req.body;
 
-    const user = await UserGlobal.findById(userId).select("-merci_password");
-    const commissionUpdates = [];
-
     for (let update of discountData) {
       const { merchantId, coupon, valueUsed } = update;
 
-      const rooftopShopData = await rooftopShop.findById(merchantId).select('merci_refer');
-      const userWithRefer = await User.findOne({ merci_refer_id: rooftopShopData.merci_refer });
+      const rooftopShopData = await rooftopShop.findById(merchantId).select("merci_plan");
+      if (!rooftopShopData) continue;
 
-      if (userWithRefer) {
-        const { merci_level, merci_tree, merci_refer_id } = userWithRefer;
+      // **Call handlePlanTwoCommission if the plan is "plan_two"**
+      if (rooftopShopData.merci_plan === "plan_two") {
+        await handlePlanTwoCommission(merchantId, valueUsed, update);
+      } else {
+        // **Standard Process if not "plan_two"**
+        await rooftopShop.findByIdAndUpdate(
+          merchantId,
+          {
+            $inc: {
+              merci_coupons_balance: -valueUsed.toFixed(2),
+              merci_coupons_used: valueUsed.toFixed(2),
+            },
+          },
+          { new: true }
+        );
 
-        // Update the merci_tree with the new refer ID
-        merci_tree[merci_level.replace(' ', '')] = merci_refer_id;
-
-        // Prepare commission data to save
-        const newCommissionData = new CommissionData(setCommision(merchantId, merci_tree, discount));
-        commissionUpdates.push(newCommissionData.save());
+        await Coupon.findOneAndUpdate(
+          { coupon: coupon },
+          {
+            $inc: {
+              used: valueUsed.toFixed(2),
+            },
+          },
+          { new: true }
+        );
       }
-
-      // Prepare updates for rooftopShop and Coupon collections
-      const rooftopShopUpdate = rooftopShop.findByIdAndUpdate(
-        merchantId,
-        {
-          $inc: {
-            merci_coupons_balance: -valueUsed.toFixed(2),
-            merci_coupons_used: valueUsed.toFixed(2),
-          },
-        },
-        { new: true }
-      );
-
-      const couponUpdate = Coupon.findOneAndUpdate(
-        { coupon: coupon },
-        {
-          $inc: {
-            used: valueUsed.toFixed(2),
-          },
-        },
-        { new: true }
-      );
-
-      // Execute updates concurrently
-      await Promise.all([rooftopShopUpdate, couponUpdate]);
     }
-
-    // Save all commission data concurrently
-    await Promise.all(commissionUpdates);
 
     // Save purchased data
     const purchasedData = new PurchasedData({
       ORID,
-      userId,
       orderID,
       paymentID,
       address,
@@ -103,14 +172,17 @@ const createPurchasedData = async (req, res) => {
 
     await purchasedData.save();
 
-    // Send confirmation email
-    sendEmail(
-      user.merci_email,
-      `Your Order has been placed # ${ORID}`,
-      shippingDetail(req.body)
-    );
+    // Fetch user for notifications
+    const user = await User.findOne({ merci_refer_id: purchasedData.userId });
+    if (user) {
+      sendEmail(
+        user.merci_email,
+        `Your Order has been placed # ${ORID}`,
+        shippingDetail(req.body)
+      );
 
-    sendTemplateMessage(user.merci_phone, user.merci_full_name, ORID, formatDate())
+      sendTemplateMessage(user.merci_phone, user.merci_full_name, ORID, formatDate());
+    }
 
     res.status(201).json({
       message: "Purchased data created successfully",
@@ -120,6 +192,9 @@ const createPurchasedData = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+/*  Shop Payment */
 
 const createShopData = async (req, res) => {
   try {
@@ -240,7 +315,7 @@ const createMonthlyData = async (req, res) => {
 const getCommissionData = async (req, res) => {
   try {
     const { level, refer_id } = req.params;
-
+   
     if (!level || !refer_id) {
       return res.status(400).json({ message: 'Level and refer_id are required' });
     }

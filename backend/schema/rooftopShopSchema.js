@@ -55,6 +55,10 @@ const rooftopShopSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    merci_plan: {
+        type: String,
+        default: ''
+    },
     merci_level: {
         type: String,
         default: ''
