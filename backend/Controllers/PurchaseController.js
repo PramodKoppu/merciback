@@ -47,6 +47,7 @@ const createPurchasedData = async (req, res) => {
 
       const merci_tree = user.merci_tree;
       const merci_level = user.merci_level;
+      merci_tree[merci_level.replace(' ', '')] = user.merci_refer_id;
 
       console.log('merci tree', merci_tree, merci_level);
 
