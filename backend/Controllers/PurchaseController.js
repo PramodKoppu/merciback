@@ -17,202 +17,179 @@ const formatDate = () => {
   return `${today.getDate()}, ${today.toLocaleString('default', { month: 'short' })}, ${today.getFullYear()}`;
 };
 
-// **Function to handle commissions for Plan Two**
-const handlePlanTwoCommission = async (merchantId, valueUsed, discount) => {
-  try {
-    const rooftopShopData = await rooftopShop.findById(merchantId).select("merci_refer merci_coupons_used merci_plan");
-    if (!rooftopShopData || rooftopShopData.merci_plan !== "plan_two") return;
-
-    const userId = rooftopShopData.merci_refer;
-    const userWithRefer = await User.findOne({ merci_refer_id: userId });
-    if (!userWithRefer) return;
-
-    let newCouponsUsed = parseFloat(rooftopShopData.merci_coupons_used) + parseFloat(valueUsed);
-    const { merci_tree, merci_level } = userWithRefer;
-    let commissionData = [];
-
-    // Trigger commission at 3000 & 6000 milestones
-    [3000, 6000].forEach((milestone) => {
-      if (newCouponsUsed >= milestone && rooftopShopData.merci_coupons_used < milestone) {
-        commissionData.push(
-          { level: "Level 4", refer_id: merci_tree["Level 4"] || null, commission: 1500 },
-          { level: "Level 3", refer_id: merci_tree["Level 3"] || null, commission: 300 },
-          { level: "Level 2", refer_id: merci_tree["Level 2"] || null, commission: 150 },
-          { level: "Level 1", refer_id: merci_tree["Level 1"] || null, commission: 0 }
-        );
-      }
-    });
-
-
-    if (commissionData.length) {
-      const finalCommissionData = {
-        userId,
-        paymentType: "shop",
-        level1: commissionData.find(data => data.level === "Level 1")?.refer_id,
-        commissionL1: commissionData.find(data => data.level === "Level 1")?.commission || 0,
-        level2: commissionData.find(data => data.level === "Level 2")?.refer_id,
-        commissionL2: commissionData.find(data => data.level === "Level 2")?.commission || 0,
-        level3: commissionData.find(data => data.level === "Level 3")?.refer_id,
-        commissionL3: commissionData.find(data => data.level === "Level 3")?.commission || 0,
-        level4: commissionData.find(data => data.level === "Level 4")?.refer_id,
-        commissionL4: commissionData.find(data => data.level === "Level 4")?.commission || 0,
-      };
-
-      await new CommissionData(finalCommissionData).save();
-    }
-
-    // Update rooftopShop & Coupon balance
-    await Promise.all([
-      rooftopShop.findByIdAndUpdate(
-        merchantId,
-        { $inc: { merci_coupons_balance: -valueUsed, merci_coupons_used: valueUsed } },
-        { new: true }
-      ),
-      Coupon.findOneAndUpdate(
-        { coupon: discount.coupon },
-        { $inc: { used: valueUsed } },
-        { new: true }
-      ),
-    ]);
-  } catch (error) {
-    console.error("Error processing Plan Two commission:", error);
-  }
-};
-
-// **Function to handle purchases**
 const createPurchasedData = async (req, res) => {
   try {
-    const { ORID, userId, orderID, paymentID, address, cartData, total, shippingFee, discount, returnDate, discountData } = req.body;
+    const {  ORID, userId, orderID, paymentID, address, cartData, total, shippingFee, discount, returnDate, discountData } = req.body;
 
-    const user = await User.findOne({ merci_refer_id: req.body.userId }).lean();
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const user = await UserGlobal.findById(userId).select("-merci_password");
+    
+    const commissionUpdates = [];
+    
+    for (let update of discountData) {
 
-    const merci_tree = user.merci_tree;
-    const merci_level = user.merci_level;
-
-    // 🏷️ **Calculate commission based on total purchase**
-    const distribution = distributePayment(merci_tree, merci_level, total, false);
-
-    // 🏷️ **Prepare commission data for saving**
-    const commissionData = Object.keys(merci_tree).map(level => ({
-      level,
-      refer_id: level === merci_level.replace(" ", "") ? user.merci_refer_id : merci_tree[level],
-      commission: distribution[level] || 0
-    }));
-
-    // 🏷️ **Prepare final commission data**
-    const finalCommissionData = {
-      userId: req.body.userId,
-      paymentType: "purchase",
-      level1: commissionData.find(data => data.level === "Level 1")?.refer_id,
-      commissionL1: commissionData.find(data => data.level === "Level 1")?.commission || 0,
-      level2: commissionData.find(data => data.level === "Level 2")?.refer_id,
-      commissionL2: commissionData.find(data => data.level === "Level 2")?.commission || 0,
-      level3: commissionData.find(data => data.level === "Level 3")?.refer_id,
-      commissionL3: commissionData.find(data => data.level === "Level 3")?.commission || 0,
-      level4: commissionData.find(data => data.level === "Level 4")?.refer_id,
-      commissionL4: commissionData.find(data => data.level === "Level 4")?.commission || 0,
-    };
-
-    // 🏷️ **Save commission data**
-    await new CommissionData(finalCommissionData).save();
+      const { merchantId, coupon, valueUsed } = update;
+      const rooftopShopData = await rooftopShop.findById(merchantId).select('merci_refer merci_plan merci_coupons_used');
+      
+      // 🏷️ Only calculate if Plan Two
+  if (rooftopShopData.merci_plan === "plan_two") {
+    const newCouponsUsed = rooftopShopData.merci_coupons_used + valueUsed; // Calculate new coupon usage
 
     
-    await Promise.all(discountData.map(async (update) => {
-      const { merchantId, valueUsed } = update;
-      const rooftopShopData = await rooftopShop.findById(merchantId).select("merci_plan");
-      if (!rooftopShopData) return;
+    // 🏷️ Trigger commission ONLY when newCouponsUsed crosses 3000 or 6000 ONCE
+    if ((newCouponsUsed >= 3000 && rooftopShopData.merci_coupons_used < 3000) || 
+        (newCouponsUsed >= 6000 && rooftopShopData.merci_coupons_used < 6000)) {
+      
+      const user = await User.findOne({ merci_refer_id: rooftopShopData.merci_refer }).lean();
+      if (!user) continue;
 
-      if (rooftopShopData.merci_plan === "plan_two") {
-        await handlePlanTwoCommission(merchantId, valueUsed, update);
-      } else {
-        await Promise.all([
-          rooftopShop.findByIdAndUpdate(
-            merchantId,
-            { $inc: { merci_coupons_balance: -valueUsed, merci_coupons_used: valueUsed } },
-            { new: true }
-          ),
-          Coupon.findOneAndUpdate(
-            { coupon: update.coupon },
-            { $inc: { used: valueUsed } },
-            { new: true }
-          ),
-        ]);
+      const merci_tree = user.merci_tree;
+      const merci_level = user.merci_level;
+
+      // 🏷️ Calculate commission for the milestone (3000 or 6000)
+      const finalCommissionData = distributePayment(merchantId, "shop", "", merci_tree, merci_level, 3000, false, true);
+
+      
+      // 🏷️ Save commission data
+      const newCommissionData = new CommissionData(finalCommissionData);
+      await newCommissionData.save();
+    
+    }
+  }
+
+      const userWithRefer = await User.findOne({ merci_refer_id: rooftopShopData.merci_refer });
+
+      if (userWithRefer) {
+        const { merci_level, merci_tree, merci_refer_id } = userWithRefer;
+        merci_tree[merci_level.replace(' ', '')] = merci_refer_id;
+        const newCommissionData = new CommissionData(setCommision(merchantId, merci_tree, discount));
+        commissionUpdates.push(newCommissionData.save());
       }
-    }));
 
+      const rooftopShopUpdate = rooftopShop.findByIdAndUpdate( merchantId, { $inc: {
+            merci_coupons_balance: -valueUsed.toFixed(2),
+            merci_coupons_used: valueUsed.toFixed(2),
+          },
+        },
+        { new: true }
+      );
+
+      const couponUpdate = Coupon.findOneAndUpdate( { coupon: coupon }, {
+          $inc: {
+            used: valueUsed.toFixed(2),
+          },
+        },
+        { new: true }
+      );
+
+      // Execute updates concurrently
+      await Promise.all([rooftopShopUpdate, couponUpdate]);
+  }
+
+    // Save all commission data concurrently
+    await Promise.all(commissionUpdates);
 
     // Save purchased data
     const purchasedData = new PurchasedData({ ORID, userId, orderID, paymentID, address, cartData, total, shippingFee, discount, returnDate, discountData });
-    try { 
-      await purchasedData.save();
-    } catch (err) {
-      console.log('errr', err);
-    }
+    await purchasedData.save();
 
-
-    // Notify user
-    // const userData = await User.findOne({ merci_refer_id: purchasedData.userId });
-    if (user) {
-      sendEmail(user.merci_email, `Your Order has been placed # ${ORID}`, shippingDetail(req.body));
-      sendTemplateMessage(user.merci_phone, user.merci_full_name, ORID, formatDate());
-    }
-
-    res.status(201).json({ message: "Purchased data created successfully", data: purchasedData });
+    // Send confirmation email
+    sendEmail(user.merci_email, `Your Order has been placed # ${ORID}`, shippingDetail(req.body));
+    sendTemplateMessage(user.merci_phone, user.merci_full_name, ORID, formatDate())
+    res.status(201).json({message: "Purchased data created successfully", data: purchasedData,});
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// **Refactored Shop and Monthly Purchase Logic**
-const processShopPayment = async (req, res, paymentType) => {
+const createShopData = async (req, res) => {
   try {
     const { ORID, userId, orderID, paymentID, total, refer } = req.body;
-
-    const shopPay = new shopPayment({ ORID, userId, orderID, paymentID, total, refer });
+    const shopPay = new shopPayment({ ORID, userId, orderID, paymentID, total, refer});
     const user = await User.findOne({ merci_refer_id: refer }).lean();
+
     const merci_tree = user.merci_tree;
     const merci_level = user.merci_level;
 
-    const distribution = distributePayment(merci_tree, merci_level, total, paymentType === "monthly");
-
-    const commissionData = Object.keys(merci_tree).map(level => ({
-      level,
-      refer_id: level === merci_level.replace(" ", "") ? refer : merci_tree[level],
-      commission: distribution[level] || 0
-    }));
-
-    const finalCommissionData = {
-      userId,
-      paymentType,
-      level1: commissionData.find(data => data.level === "Level 1")?.refer_id,
-      commissionL1: commissionData.find(data => data.level === "Level 1")?.commission || 0,
-      level2: commissionData.find(data => data.level === "Level 2")?.refer_id,
-      commissionL2: commissionData.find(data => data.level === "Level 2")?.commission || 0,
-      level3: commissionData.find(data => data.level === "Level 3")?.refer_id,
-      commissionL3: commissionData.find(data => data.level === "Level 3")?.commission || 0,
-      level4: commissionData.find(data => data.level === "Level 4")?.refer_id,
-      commissionL4: commissionData.find(data => data.level === "Level 4")?.commission || 0,
-    };
-
-    await new CommissionData(finalCommissionData).save();
+    const finalCommissionData = distributePayment(userId, "shop", refer, merci_tree, merci_level, total, false, false)
+    const newCommissionData = new CommissionData(finalCommissionData);
+    await newCommissionData.save();
+    
     await shopPay.save();
     await rooftopShop.findByIdAndUpdate(userId, { merci_isPayment: true });
-
-    res.status(201).json({ message: "Purchase successful", data: shopPay });
+    // sendEmail(user.merci_email, `Your Order has been placed # ${ORID}`, shippingDetail(req.body))
+    res
+      .status(201)
+      .json({
+        message: "Purchased has been successful",
+        data: shopPayment,
+      });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+
+const createMonthlyData = async (req, res) => {
+  try {
+    const { ORID, userId, orderID, paymentID, total, refer } = req.body;
+
+    const shopPay = new shopPayment({
+      ORID,
+      userId,
+      orderID,
+      paymentID,
+      total,
+      refer,
+    });
+
+    const user = await User.findOne({ merci_refer_id: refer }).lean();
+
+    const merci_tree = user.merci_tree;
+    const merci_level = user.merci_level;
+
+    const distribution = distributePayment(merci_tree, merci_level, total, true)
+
+    const commissionData = Object.keys(merci_tree).map(level => ({
+        level: level.replace(/(\d)/, ' $1'),  // Format the level as 'Level 1', 'Level 2', etc.
+        refer_id: level === merci_level.replace(' ', '') ? refer : merci_tree[level],
+        commission: distribution[level] || 0
+      }));
+  
+      const finalCommissionData = {
+        userId,
+        paymentType: 'monthly',
+        level1: commissionData.find(data => data.level === 'Level 1').refer_id,
+        commissionL1: commissionData.find(data => data.level === 'Level 1').commission,
+        level2: commissionData.find(data => data.level === 'Level 2').refer_id,
+        commissionL2: commissionData.find(data => data.level === 'Level 2').commission,
+        level3: commissionData.find(data => data.level === 'Level 3').refer_id,
+        commissionL3: commissionData.find(data => data.level === 'Level 3').commission,
+        level4: commissionData.find(data => data.level === 'Level 4').refer_id,
+        commissionL4: commissionData.find(data => data.level === 'Level 4').commission
+      };
+
+      // console.log(finalCommissionData);
+
+      const newCommissionData = new CommissionData(finalCommissionData);
+      await newCommissionData.save();
+      
+      
+    res
+      .status(201)
+      .json({
+        message: "Purchased has been successful",
+        data: shopPayment,
+      });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 const getCommissionData = async (req, res) => {
   try {
     const { level, refer_id } = req.params;
-   
+
     if (!level || !refer_id) {
       return res.status(400).json({ message: 'Level and refer_id are required' });
     }
@@ -368,7 +345,7 @@ module.exports = {
   updateRefund,
   getPurchaseDataById,
   cancelOrder,
+  createShopData,
   getCommissionData,
-  createShopData: (req, res) => processShopPayment(req, res, "shop"),
-  createMonthlyData: (req, res) => processShopPayment(req, res, "monthly"),
+  createMonthlyData
 };
