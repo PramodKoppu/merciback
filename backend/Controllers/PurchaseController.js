@@ -34,10 +34,13 @@ const createPurchasedData = async (req, res) => {
   if (rooftopShopData.merci_plan === "plan_two") {
     const newCouponsUsed = rooftopShopData.merci_coupons_used + valueUsed; // Calculate new coupon usage
 
+    console.log('before 3000 or 6000', newCouponsUsed);
     
     // 🏷️ Trigger commission ONLY when newCouponsUsed crosses 3000 or 6000 ONCE
     if ((newCouponsUsed >= 3000 && rooftopShopData.merci_coupons_used < 3000) || 
         (newCouponsUsed >= 6000 && rooftopShopData.merci_coupons_used < 6000)) {
+
+          console.log('after 3000 or 6000');
       
       const user = await User.findOne({ merci_refer_id: rooftopShopData.merci_refer }).lean();
       if (!user) continue;
