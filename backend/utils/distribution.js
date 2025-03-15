@@ -41,6 +41,8 @@ const distributePayment = (userId, paymentType, refer, merci_tree, merci_level, 
       commissionL4: commissionData.find(data => data.level === 'Level 4').commission
     };
 
+    console.log('CommisionData', commissionData);
+
 
     const CommissionData = {
       userId,

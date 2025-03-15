@@ -48,6 +48,8 @@ const createPurchasedData = async (req, res) => {
       const merci_tree = user.merci_tree;
       const merci_level = user.merci_level;
 
+      console.log('merci tree', merci_tree, merci_level);
+
       // 🏷️ Calculate commission for the milestone (3000 or 6000)
       const finalCommissionData = distributePayment(merchantId, "shop", "", merci_tree, merci_level, 3000, false, true);
 
