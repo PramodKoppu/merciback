@@ -16,4 +16,12 @@ router.put('/used/:couponId', couponController.updateCouponUsage);
 
 router.post('/multiple', couponController.insertMultipleCoupons);
 
+router.post('/requestCoupon', couponController.requestCoupon);
+
+router.get('/viewRequestCoupon/:merchantId', couponController.getRequestsByMerchant);
+
+router.put("/requestCoupon/status", couponController.updateRequestStatus);
+
+router.get("/userRequestCoupon/:userId", couponController.getRequestsByUserPhone);
+
 module.exports = router;

@@ -26,6 +26,10 @@ const couponSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         default: null
     },
+    assignedMerchant: {
+        type: String,
+        default: null
+    },
     used: {
         type: Number,
         default: null
